@@ -5,8 +5,9 @@ import {
   Save, 
   User, 
   Palette,
-  LogOut as LogOutIcon
+  LogOut
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import { useTheme } from '../lib/ThemeContext';
 
@@ -26,6 +27,17 @@ const Settings = () => {
     }
   });
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear authentication
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('currentUser');
+    // Redirect to login
+    navigate('/login');
+    // Force a full page reload to reset the app state
+    window.location.reload();
+  };
 
   const handleSettingChange = (section: string, key: string, value: any) => {
     setSettings(prev => ({
@@ -61,21 +73,12 @@ const Settings = () => {
   return (
     <div className="space-y-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
       <div className="flex items-center justify-between">
-        {/* <div>
+        <div>
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Settings
           </h2>
           <p className="text-muted-foreground mt-2 text-lg">Manage your account and preferences</p>
-        </div> */}
-        <Button
-          variant="destructive"
-          className="gap-2"
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent('requestLogout'));
-          }}
-        >
-          <LogOutIcon className="h-4 w-4" /> Logout
-        </Button>
+        </div>
       </div>
 
       <div className="flex space-x-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-2 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -157,7 +160,8 @@ const Settings = () => {
       )}
 
       {activeTab === 'appearance' && (
-        <Card className="bg-white dark:bg-slate-800 border-gray-200 dark:border-gray-700">
+        <div className="space-y-6">
+          <Card className="bg-white dark:bg-slate-800 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>Appearance & Display</CardTitle>
             <CardDescription>Choose your theme preference</CardDescription>
@@ -189,6 +193,32 @@ const Settings = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* <Card className="border border-red-100 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/20">
+          <CardHeader>
+            <CardTitle className="text-red-700 dark:text-red-300">Danger Zone</CardTitle>
+            <CardDescription>These actions are irreversible</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="border-t border-red-100 dark:border-red-900/50 pt-4">
+                <h4 className="text-sm font-medium text-red-700 dark:text-red-300 mb-2">Sign out of your account</h4>
+                <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+                  You'll be logged out of your account and redirected to the login page.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={handleLogout}
+                  className="text-red-600 border-red-300 dark:border-red-700 hover:bg-red-50 dark:hover:bg-red-900/30"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card> */}
+      </div>
       )}
     </div>
   );

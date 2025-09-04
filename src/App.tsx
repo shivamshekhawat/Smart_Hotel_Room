@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import LoginScreen from './components/LoginScreen';
 import Dashboard from './components/Dashboard';
 import RoomsManagement from './components/RoomsManagement';
@@ -44,10 +44,20 @@ export interface FeedbackItem {
   timestamp: string;
 }
 
+// ✅ Wrap app so we can use hooks like useNavigate
+const AppWrapper = () => (
+  <ThemeProvider>
+    <Router>
+      <App />
+    </Router>
+  </ThemeProvider>
+);
+
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Check for existing authentication on app load
   useEffect(() => {
@@ -57,13 +67,11 @@ const App = () => {
         const storedUser = localStorage.getItem('currentUser');
         
         if (storedAuth === 'true' && storedUser) {
-          const user = JSON.parse(storedUser);
-          setCurrentUser(user);
+          setCurrentUser(JSON.parse(storedUser));
           setIsAuthenticated(true);
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
-        // Clear invalid data
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('currentUser');
       } finally {
@@ -74,23 +82,85 @@ const App = () => {
     checkAuth();
   }, []);
 
+  // Prevent logout via browser shortcuts and context menu
+  useEffect(() => {
+    const preventLogout = (e: KeyboardEvent) => {
+      if ((e.ctrlKey && e.key === 'q') || 
+          (e.altKey && e.key === 'F4') || 
+          (e.ctrlKey && e.key === 'w')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    const originalClose = window.close;
+    window.close = () => {
+      console.log('Window close prevented for security');
+      return false;
+    };
+
+    const preventUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    };
+
+    const preventContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const preventDevTools = (e: KeyboardEvent) => {
+      if (e.key === 'F12' || 
+          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+          (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    const disableRightClick = (e: MouseEvent) => {
+      if (e.button === 2) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    document.addEventListener('keydown', preventLogout);
+    document.addEventListener('keydown', preventDevTools);
+    document.addEventListener('contextmenu', preventContextMenu);
+    document.addEventListener('mousedown', disableRightClick);
+    window.addEventListener('beforeunload', preventUnload);
+
+    return () => {
+      document.removeEventListener('keydown', preventLogout);
+      document.removeEventListener('keydown', preventDevTools);
+      document.removeEventListener('contextmenu', preventContextMenu);
+      document.removeEventListener('mousedown', disableRightClick);
+      window.removeEventListener('beforeunload', preventUnload);
+      window.close = originalClose;
+    };
+  }, []);
+
   const handleLogin = (user: User) => {
     setCurrentUser(user);
     setIsAuthenticated(true);
-    // Persist to localStorage
     localStorage.setItem('isAuthenticated', 'true');
     localStorage.setItem('currentUser', JSON.stringify(user));
+    // ✅ Navigate without reload
+    navigate('/dashboard', { replace: true });
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
     setIsAuthenticated(false);
-    // Clear from localStorage
+    setCurrentUser(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('currentUser');
+    navigate('/login', { replace: true });
   };
 
-  // Show loading screen while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -102,32 +172,56 @@ const App = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} />;
-  }
-
   return (
-    <ThemeProvider>
-      <Router>
-        <Layout currentUser={currentUser} onLogout={handleLogout}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/rooms" element={<RoomsManagement />} />
-            <Route path="/guests" element={<GuestManagement />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/configure-display" element={<ConfigureDisplay />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/clean-requests" element={<CleanRequests />} />
-            <Route path="/technical-issues" element={<TechnicalIssues />} />
-          </Routes>
-        </Layout>
-      </Router>
-    </ThemeProvider>
+    <Routes>
+      {/* Public Route */}
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <LoginScreen onLogin={handleLogin} />
+          )
+        }
+      />
+
+      {/* Root path */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      {/* Protected Routes */}
+      {isAuthenticated ? (
+        <Route
+          element={<Layout currentUser={currentUser} onLogout={handleLogout} />}
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/rooms" element={<RoomsManagement />} />
+          <Route path="/guests" element={<GuestManagement />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/configure-display" element={<ConfigureDisplay />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/clean-requests" element={<CleanRequests />} />
+          <Route path="/technical-issues" element={<TechnicalIssues />} />
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Route>
+      ) : (
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      )}
+    </Routes>
   );
 };
 
-export default App;
+export default AppWrapper;

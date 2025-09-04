@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from '../App';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -16,6 +16,40 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Hide login page from browser tabs
+  useEffect(() => {
+    // Change document title to hide login page
+    document.title = 'Hotel Management System';
+    
+    // Add meta tags to prevent indexing and hide from browser history
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Hotel Management System');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'description';
+      meta.content = 'Hotel Management System';
+      document.head.appendChild(meta);
+    }
+
+    // Add noindex meta tag
+    const noindexMeta = document.querySelector('meta[name="robots"]');
+    if (noindexMeta) {
+      noindexMeta.setAttribute('content', 'noindex, nofollow');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'robots';
+      meta.content = 'noindex, nofollow';
+      document.head.appendChild(meta);
+    }
+
+    // Cleanup function
+    return () => {
+      // Reset title when component unmounts
+      document.title = 'Hotel Management System';
+    };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

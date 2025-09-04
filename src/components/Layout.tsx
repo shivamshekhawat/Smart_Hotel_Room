@@ -1,27 +1,23 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import { User } from '../App';
 import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import Toast from './ui/toast';
 import { useTheme } from '../lib/ThemeContext';
 import {
   LayoutDashboard,
   Bed,
   Users,
-  Bell,
   MessageSquare,
   Settings,
-  LogOut,
   Sun,
   Moon,
   ChevronLeft,
   ChevronRight,
   User as UserIcon
 } from 'lucide-react';
+import Toast from './ui/toast';
 
 interface LayoutProps {
-  children: React.ReactNode;
   currentUser: User | null;
   onLogout: () => void;
 }
@@ -33,7 +29,7 @@ interface ToastMessage {
   message?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
+const Layout: React.FC<LayoutProps> = ({ currentUser, onLogout }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -53,15 +49,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
     const handleToastEvent = (event: CustomEvent) => {
       addToast(event.detail);
     };
-    const handleLogoutRequest = () => {
-      onLogout();
-      addToast({ type: 'success', title: 'Logged Out', message: 'You have been successfully logged out' });
-    };
     window.addEventListener('showToast', handleToastEvent as EventListener);
-    window.addEventListener('requestLogout', handleLogoutRequest as EventListener);
     return () => {
       window.removeEventListener('showToast', handleToastEvent as EventListener);
-      window.removeEventListener('requestLogout', handleLogoutRequest as EventListener);
     };
   }, []);
 
@@ -72,11 +62,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
     { name: 'Configure Display', href: '/configure-display', icon: Settings },
     { name: 'User Management', href: '/users', icon: UserIcon },
     { name: 'Feedback & Reviews', href: '/feedback', icon: MessageSquare },
-    // { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
-  // Sidebar width for layout shift
-  const sidebarWidth = sidebarCollapsed ? 72 : 260; // px
+  const sidebarWidth = sidebarCollapsed ? 72 : 260;
 
   return (
     <div
@@ -131,26 +119,73 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
                 style={{ marginBottom: 2 }}
                 onClick={() => setIsMobileNavOpen(false)}
               >
-                <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-sky-600 dark:text-sky-400' : 'text-blue-400 dark:text-blue-300 group-hover:text-sky-600 dark:group-hover:text-sky-400'}`} />
+                <item.icon
+                  className={`h-5 w-5 flex-shrink-0 ${
+                    isActive
+                      ? 'text-sky-600 dark:text-sky-400'
+                      : 'text-blue-400 dark:text-blue-300 group-hover:text-sky-600 dark:group-hover:text-sky-400'
+                  }`}
+                />
                 {!sidebarCollapsed && <span>{item.name}</span>}
               </Link>
             );
           })}
         </nav>
 
-        {/* Divider and Settings Section */}
+        {/* User Profile and Settings Section */}
         <div className="px-4 pb-6">
           <div className="border-t border-blue-100 dark:border-gray-800 mb-4"></div>
+
+          {/* User Profile */}
+          <div
+            className={`flex items-center gap-3 px-4 py-2 rounded-lg mb-2 ${
+              sidebarCollapsed ? 'justify-center' : 'justify-between'
+            }`}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-8 w-8 rounded-full bg-sky-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                <UserIcon className="h-4 w-4 text-sky-600 dark:text-sky-300" />
+              </div>
+              {!sidebarCollapsed && (
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-blue-900 dark:text-white truncate">
+                    {currentUser?.username || 'User'}
+                  </p>
+                  <p className="text-xs text-blue-500 dark:text-blue-300 truncate">
+                    {currentUser?.role || 'Admin'}
+                  </p>
+                </div>
+              )}
+            </div>
+            {!sidebarCollapsed && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onLogout}
+                className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+              >
+                Logout
+              </Button>
+            )}
+          </div>
+
+          {/* Settings Link */}
           <Link
             to="/settings"
-            className={`flex items-center gap-4 px-4 py-2 rounded-lg font-medium transition-colors duration-200 mb-2 ${
+            className={`flex items-center gap-4 px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
               location.pathname === '/settings'
                 ? 'bg-sky-100 text-sky-700 dark:bg-slate-800 dark:text-sky-200 shadow font-semibold'
                 : 'text-blue-900 dark:text-blue-100 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-sky-700 dark:hover:text-sky-200'
             }`}
             onClick={() => setIsMobileNavOpen(false)}
           >
-            <Settings className={`h-5 w-5 flex-shrink-0 ${location.pathname === '/settings' ? 'text-sky-600 dark:text-sky-400' : 'text-blue-400 dark:text-blue-300 group-hover:text-sky-600 dark:group-hover:text-sky-400'}`} />
+            <Settings
+              className={`h-5 w-5 flex-shrink-0 ${
+                location.pathname === '/settings'
+                  ? 'text-sky-600 dark:text-sky-400'
+                  : 'text-blue-400 dark:text-blue-300 group-hover:text-sky-600 dark:group-hover:text-sky-400'
+              }`}
+            />
             {!sidebarCollapsed && <span>Settings</span>}
           </Link>
         </div>
@@ -158,7 +193,10 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
 
       {/* Mobile overlay */}
       {isMobileNavOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsMobileNavOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={() => setIsMobileNavOpen(false)}
+        />
       )}
 
       {/* Main Content */}
@@ -177,11 +215,22 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
                 onClick={() => setIsMobileNavOpen(true)}
                 aria-label="Open navigation"
               >
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg
+                  className="h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
               </Button>
               <h1 className="text-2xl lg:text-3xl font-extrabold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
-                {navigation.find((item) => item.href === location.pathname)?.name ||
-                  'Dashboard'}
+                {navigation.find((item) => item.href === location.pathname)?.name || 'Dashboard'}
               </h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-5">
@@ -201,13 +250,15 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
             </div>
           </div>
         </header>
+
         {/* Page Content */}
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-screen-xl mx-auto bg-white dark:bg-slate-900 shadow-lg rounded-2xl p-4 sm:p-6 lg:p-8 min-h-[70vh] border border-blue-100 dark:border-gray-800">
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>
+
       {/* Toast Notifications */}
       {toasts.map((toast) => (
         <Toast
