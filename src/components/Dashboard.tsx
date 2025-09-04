@@ -276,32 +276,34 @@ const Dashboard = () => {
       </div>
 
       {/* Dashboard Quick Actions (below summary cards) */}
-      <Button
-  className="w-full flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl"
-  variant="outline"
-  onClick={() => navigate('/guests')}
->
-  <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
-  Assign Guest
-</Button>
+      <div className="flex flex-wrap gap-3">
+  <Button
+    className="flex-1 flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl whitespace-nowrap"
+    variant="outline"
+    onClick={() => navigate('/guests')}
+  >
+    <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
+    Assign Guest
+  </Button>
 
-<Button
-  className="w-full flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl"
-  variant="outline"
-  onClick={() => navigate('/notifications')}
->
-  <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
-  Send Notification
-</Button>
+  <Button
+    className="flex-1 flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl whitespace-nowrap"
+    variant="outline"
+    onClick={() => navigate('/notifications')}
+  >
+    <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
+    Send Notification
+  </Button>
 
-<Button
-  className="w-full flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl"
-  variant="outline"
-  onClick={() => navigate('/configure-display')}
->
-  <Settings className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
-  Configure Display
-</Button>
+  <Button
+    className="flex-1 flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl whitespace-nowrap"
+    variant="outline"
+    onClick={() => navigate('/configure-display')}
+  >
+    <Settings className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
+    Configure Display
+  </Button>
+</div>
 
 
 
@@ -356,69 +358,69 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button
-              className="w-full justify-start h-11 sm:h-12 text-sm sm:text-base font-medium  dark:border-gray-700 transition-all duration-200 group"
-              variant="outline"
-              onClick={() => {
-                navigate("/guests");
-                const event = new CustomEvent("showToast", {
-                  detail: {
-                    type: "info",
-                    title: "uestuest",
-                    message:
-                      "Opening Guest Management with Add Guest form...",
-                  },
-                });
-                window.dispatchEvent(event);
-              }}
-            >
-              <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg  dark:bg-blue-900/30  transition-colors duration-200 mr-2 sm:mr-3">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              Add New Guest
-            </Button>
+          <Button
+  className="w-full justify-start h-11 sm:h-12 text-sm sm:text-base font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
+  variant="outline"
+  onClick={() => {
+    navigate("/guests");
+    const event = new CustomEvent("showToast", {
+      detail: {
+        type: "info",
+        title: "Guest Management",
+        message: "Opening Guest Management with Add Guest form...",
+      },
+    });
+    window.dispatchEvent(event);
+  }}
+>
+  <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-colors duration-200 mr-2 sm:mr-3">
+    <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+  </div>
+  Add New Guest
+</Button>
 
-            <Button
-              className="w-full justify-start h-12 text-base font-medium  transition-all duration-200 group"
-              variant="outline"
-              onClick={() => {
-                navigate("/rooms");
-                const event = new CustomEvent("showToast", {
-                  detail: {
-                    type: "info",
-                    title: "Room Management",
-                    message: "Redirecting to Room Management...",
-                  },
-                });
-                window.dispatchEvent(event);
-              }}
-            >
-              <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg   transition-colors duration-200 mr-2 sm:mr-3">
-                <Bed className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              Assign Room
-            </Button>
+<Button
+  className="w-full justify-start h-11 sm:h-12 text-sm sm:text-base font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
+  variant="outline"
+  onClick={() => {
+    navigate("/rooms");
+    const event = new CustomEvent("showToast", {
+      detail: {
+        type: "info",
+        title: "Room Management",
+        message: "Redirecting to Room Management...",
+      },
+    });
+    window.dispatchEvent(event);
+  }}
+>
+  <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-colors duration-200 mr-2 sm:mr-3">
+    <Bed className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 dark:text-gray-200" />
+  </div>
+  Assign Room
+</Button>
 
-            <Button
-              className="w-full justify-start h-12 text-base font-medium  transition-all duration-200 group"
-              variant="outline"
-              onClick={() => {
-                navigate("/notifications");
-                const event = new CustomEvent("showToast", {
-                  detail: {
-                    type: "info",
-                    title: "Notifications",
-                    message: "Redirecting to Notifications...",
-                  },
-                });
-                window.dispatchEvent(event);
-              }}
-            >
-              <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg  transition-colors duration-200 mr-2 sm:mr-3">
-                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-              </div>
-              Send Notification
-            </Button>
+<Button
+  className="w-full justify-start h-11 sm:h-12 text-sm sm:text-base font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
+  variant="outline"
+  onClick={() => {
+    navigate("/notifications");
+    const event = new CustomEvent("showToast", {
+      detail: {
+        type: "info",
+        title: "Notifications",
+        message: "Redirecting to Notifications...",
+      },
+    });
+    window.dispatchEvent(event);
+  }}
+>
+  <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-colors duration-200 mr-2 sm:mr-3">
+    <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 dark:text-gray-200" />
+  </div>
+  Send Notification
+</Button>
+
           </CardContent>
         </Card>
       </div>

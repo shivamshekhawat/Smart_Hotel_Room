@@ -81,7 +81,7 @@ const Layout: React.FC<LayoutProps> = ({ currentUser, onLogout }) => {
         <div className="flex flex-col items-center pt-8 pb-4 px-4 border-b border-blue-100 dark:border-gray-800">
           <div className="flex items-center justify-center w-full">
             <img
-              src="/image/hyatt-regency-seeklogo 1.png"
+              src="/image/hyatt-regency-seeklogo 1 (1).png"
               alt="Hotel Logo"
               className="h-12 w-auto object-contain"
             />

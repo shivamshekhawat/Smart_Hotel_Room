@@ -198,12 +198,15 @@ const Users: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
-                  type="email"
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  value={newUser.email}
-                  onChange={e => setNewUser({ ...newUser, email: e.target.value })}
-                  required
-                />
+  type="email"
+  name="email"
+  className="w-full px-3 py-2 border rounded-md bg-background appearance-none"
+  autoComplete="off"
+  value={newUser.email}
+  onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+  required
+/>
+
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Role</label>

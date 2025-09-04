@@ -38,23 +38,17 @@ interface RoomDetailsModalProps {
     specialRequests?: string
   }
 }
-
-const statusColors: Record<RoomDetailsModalProps["room"]["status"], string> = {
-  available:
-    "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
-  occupied:
-    "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
-  maintenance:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-  cleaning:
-    "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+const statusColors: Record<string, string> = {
+  available: "text-blue-600 dark:text-blue-400",
+  occupied: "text-blue-600 dark:text-blue-400",
+  maintenance: "text-blue-600 dark:text-blue-400",
+  cleaning: "text-blue-600 dark:text-blue-400",
 }
 
 
 
 
 function ThermostatDial({ value = 25 }: { value: number }) {
-  // Simple SVG arc gauge to mimic the dial on the right
   const radius = 66
   const stroke = 10
   const c = 2 * Math.PI * radius
@@ -91,13 +85,14 @@ function ThermostatDial({ value = 25 }: { value: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <Thermometer className="h-5 w-5 text-gray-500 mb-1" />
-        <div className="text-4xl font-bold text-gray-900">{value}</div>
-        <div className="text-gray-500">{"\u00B0"}C</div>
+        <Thermometer className="h-5 w-5 text-gray-500 dark:text-gray-300 mb-1" />
+        <div className="text-4xl font-bold text-gray-900 dark:text-white">{value}</div>
+        <div className="text-gray-500 dark:text-gray-300">{"\u00B0"}C</div>
       </div>
     </div>
   )
 }
+
 
 const Tile: React.FC<React.PropsWithChildren<{ title?: string; className?: string }>> = ({
   children,

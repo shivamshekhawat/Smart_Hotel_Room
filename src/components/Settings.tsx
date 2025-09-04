@@ -180,7 +180,7 @@ const Settings = () => {
                 </select>
               </div>
             </div>
-            <Button 
+            {/* <Button 
               onClick={() => {
                 const event = new CustomEvent('showToast', {
                   detail: { type: 'success', title: 'Appearance Updated', message: 'Theme preference saved!' }
@@ -190,7 +190,7 @@ const Settings = () => {
             >
               <Save className="mr-2 h-4 w-4" />
               Save Appearance Settings
-            </Button>
+            </Button> */}
           </CardContent>
         </Card>
 

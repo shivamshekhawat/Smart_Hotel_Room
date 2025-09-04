@@ -140,6 +140,8 @@ const RoomsManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<RoomStatus | "all">("all")
   const [floorFilter, setFloorFilter] = useState<number | "all">("all")
   const [sortBy, setSortBy] = useState<"number" | "capacity">("number")
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
   const [rooms, setRooms] = useState<RoomDetailsModalProps["room"][]>(sampleRooms)
   const [showAddRoomModal, setShowAddRoomModal] = useState(false)
@@ -210,7 +212,7 @@ const RoomsManagement: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button
+          {/* <Button
 
             className="gap-2 h-11 px-5 border bg-blue-500 text-white "
             onClick={() => {
@@ -220,7 +222,7 @@ const RoomsManagement: React.FC = () => {
             }}
           >
             Clear Filters
-          </Button>
+          </Button> */}
 
           <Button
 
@@ -306,7 +308,10 @@ const RoomsManagement: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="min-w-[160px]">
               <select
-                className="w-full h-12 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                className="w-full h-12 px-4 rounded-lg border border-gray-300 dark:border-gray-600 
+             bg-white dark:bg-gray-700 text-gray-700 dark:text-white 
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+             transition-all duration-200"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as RoomStatus | "all")}
               >
@@ -316,13 +321,19 @@ const RoomsManagement: React.FC = () => {
                 <option value="maintenance">Maintenance</option>
                 <option value="cleaning">Cleaning</option>
               </select>
+
+
+
             </div>
 
             <div className="min-w-[140px]">
               <select
-                className="w-full h-12 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                className="w-full h-12 px-4 rounded-lg border border-gray-300 dark:border-gray-600
+               bg-white dark:bg-gray-700 text-gray-700 dark:text-white
+               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+               transition-all duration-200"
                 value={floorFilter}
-                onChange={(e) => setFloorFilter(e.target.value === "all" ? "all" : Number.parseInt(e.target.value))}
+                onChange={(e) => setFloorFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
               >
                 <option value="all">All Floors</option>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((floor) => (
@@ -333,17 +344,19 @@ const RoomsManagement: React.FC = () => {
               </select>
             </div>
 
+
             <Button
-              variant="pill"
-              className="h-12 px-6 border-blue text-gray-700"
-              onClick={() => {
-                setSearchTerm("")
-                setStatusFilter("all")
-                setFloorFilter("all")
-              }}
-            >
-              Clear
-            </Button>
+  variant="pill"
+  className="h-12 px-6 bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+  onClick={() => {
+    setSearchTerm("")
+    setStatusFilter("all")
+    setFloorFilter("all")
+  }}
+>
+  Clear
+</Button>
+
           </div>
         </div>
       </div>
@@ -387,12 +400,12 @@ const RoomsManagement: React.FC = () => {
                   </p>
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-  <div className="flex items-center text-blue-700 dark:text-blue-400 mb-1">
-    <Bed className="h-4 w-4 mr-1" />
-    <span className="text-xs font-semibold uppercase">Type</span>
-  </div>
-  <p className="text-lg font-bold text-gray-900 dark:text-white capitalize">{room.type}</p>
-</div>
+                  <div className="flex items-center text-blue-700 dark:text-blue-400 mb-1">
+                    <Bed className="h-4 w-4 mr-1" />
+                    <span className="text-xs font-semibold uppercase">Type</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white capitalize">{room.type}</p>
+                </div>
 
               </div>
 
@@ -417,19 +430,31 @@ const RoomsManagement: React.FC = () => {
             </div>
 
             {/* Action Footer */}
-            <div className="px-5 py-4   border-t border-gray-200 dark:border-gray-600 mt-auto">
+
+            <div className="px-5 py-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
               <Button
                 variant="pill"
                 size="sm"
-                className="w-full font-semibold transition-all duration-200 text-blue border-black"
+                className={`w-full font-semibold transition-all duration-200
+    border
+    border-blue-300 dark:border-blue-400
+    bg-transparent
+    text-blue-600
+  `}
                 onClick={(e) => {
-                  e.stopPropagation()
-                  handleRoomClick(room)
+                  e.stopPropagation();
+                  setActiveRoomId(room.id);
+                  handleRoomClick(room);
                 }}
               >
                 View Details
               </Button>
+
+
             </div>
+
+
+
           </div>
         ))}
       </div>

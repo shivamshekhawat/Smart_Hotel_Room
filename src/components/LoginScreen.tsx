@@ -17,12 +17,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Hide login page from browser tabs
   useEffect(() => {
-    // Change document title to hide login page
     document.title = 'Hotel Management System';
-    
-    // Add meta tags to prevent indexing and hide from browser history
+
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', 'Hotel Management System');
@@ -33,7 +30,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       document.head.appendChild(meta);
     }
 
-    // Add noindex meta tag
     const noindexMeta = document.querySelector('meta[name="robots"]');
     if (noindexMeta) {
       noindexMeta.setAttribute('content', 'noindex, nofollow');
@@ -44,9 +40,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       document.head.appendChild(meta);
     }
 
-    // Cleanup function
     return () => {
-      // Reset title when component unmounts
       document.title = 'Hotel Management System';
     };
   }, []);
@@ -64,7 +58,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setError(null);
     setIsLoading(true);
 
-    // Simulate API call
     setTimeout(() => {
       if (formData.username === 'admin' && formData.password === 'password') {
         const mockUser: User = {
@@ -82,27 +75,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* <img 
-        src="./image/Background.png" 
-        alt="Smart Room Background" 
-        className="absolute inset-0 w-full h-full object-cover z-0" 
-        style={{ filter: 'brightness(0.7)' }}
-      /> */}
-      <div className="w-full max-w-md z-10">
-        <Card className="shadow-2xl border-0 bg-white/30 dark:bg-slate-800/30 backdrop-blur-md" style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100">
+      <div className="w-full max-w-md">
+        <Card className="shadow-2xl border bg-white">
           <CardHeader className="text-center pb-8">
             <div className="flex justify-center mb-6">
               <img 
-                src="/image/hyatt-regency-seeklogo 1.png" 
+                src="/image/hyatt-regency-seeklogo 1 (1).png" 
                 alt="Hotel Logo" 
                 className="h-16 w-auto"
               />
             </div>
-            <CardTitle className="text-3xl font-bold text-foreground">
+            <CardTitle className="text-3xl font-bold text-gray-900">
               Welcome Back
             </CardTitle>
-            <CardDescription className="text-lg">
+            <CardDescription className="text-lg text-gray-600">
               Sign in to your hotel admin panel
             </CardDescription>
           </CardHeader>
@@ -110,11 +97,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="username" className="text-sm font-medium text-foreground">
+                <label htmlFor="username" className="text-sm font-medium text-gray-700">
                   Username
                 </label>
                 <div className="relative">
-                  <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     id="username"
                     name="username"
@@ -123,17 +110,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                     value={formData.username}
                     onChange={handleInputChange}
                     placeholder="Enter your username"
-                    className="w-full pl-10 pr-4 py-3 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                <label htmlFor="password" className="text-sm font-medium text-gray-700">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     id="password"
                     name="password"
@@ -142,12 +129,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Enter your password"
-                    className="w-full pl-10 pr-12 py-3 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -162,33 +149,34 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-sm text-muted-foreground">Remember me</span>
+                  <span className="text-sm text-gray-600">Remember me</span>
                 </label>
-                <button type="button" className="text-sm text-primary hover:underline">
+                <button type="button" className="text-sm text-blue-600 hover:underline">
                   Forgot password?
                 </button>
               </div>
 
               <Button
-                type="submit"
-                className="w-full py-3 text-lg font-semibold"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Signing in...</span>
-                  </div>
-                ) : (
-                  'Sign In'
-                )}
-              </Button>
+  type="submit"
+  className="w-full py-3 text-lg font-semibold text-white" // added text-white
+  disabled={isLoading}
+>
+  {isLoading ? (
+    <div className="flex items-center space-x-2">
+      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+      <span>Signing in...</span>
+    </div>
+  ) : (
+    'Sign In'
+  )}
+</Button>
+
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600">
                 Demo credentials: <span className="font-medium">admin / password</span>
               </p>
             </div>
@@ -196,7 +184,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         </Card>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-600">
             © 2025 Hotel Admin Panel. All rights reserved.
           </p>
         </div>
