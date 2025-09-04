@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { 
@@ -7,6 +7,8 @@ import {
   Palette,
   LogOut as LogOutIcon
 } from 'lucide-react';
+import React from 'react';
+import { useTheme } from '../lib/ThemeContext';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -19,11 +21,11 @@ const Settings = () => {
       role: 'Administrator'
     },
     appearance: {
-      theme: 'light',
       timezone: 'UTC-5',
       dateFormat: 'MM/DD/YYYY'
     }
   });
+  const { theme, setTheme } = useTheme();
 
   const handleSettingChange = (section: string, key: string, value: any) => {
     setSettings(prev => ({
@@ -48,8 +50,8 @@ const Settings = () => {
   };
 
   useEffect(() => {
-    applyTheme(settings.appearance.theme);
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: User },
@@ -59,12 +61,12 @@ const Settings = () => {
   return (
     <div className="space-y-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
       <div className="flex items-center justify-between">
-        <div>
+        {/* <div>
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Settings
           </h2>
           <p className="text-muted-foreground mt-2 text-lg">Manage your account and preferences</p>
-        </div>
+        </div> */}
         <Button
           variant="destructive"
           className="gap-2"
@@ -83,8 +85,8 @@ const Settings = () => {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center space-x-3 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               activeTab === tab.id
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'
             }`}
           >
             <tab.icon className="h-5 w-5" />
@@ -94,7 +96,7 @@ const Settings = () => {
       </div>
 
       {activeTab === 'profile' && (
-        <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+        <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold">Profile Information</CardTitle>
             <CardDescription className="text-base">Update your personal information</CardDescription>
@@ -102,39 +104,39 @@ const Settings = () => {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="text-sm font-medium">First Name</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
                 <input
                   type="text"
                   value={settings.profile.firstName}
                   onChange={(e) => handleSettingChange('profile', 'firstName', e.target.value)}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Last Name</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
                 <input
                   type="text"
                   value={settings.profile.lastName}
                   onChange={(e) => handleSettingChange('profile', 'lastName', e.target.value)}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Email</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                 <input
                   type="email"
                   value={settings.profile.email}
                   onChange={(e) => handleSettingChange('profile', 'email', e.target.value)}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Phone</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
                 <input
                   type="tel"
                   value={settings.profile.phone}
                   onChange={(e) => handleSettingChange('profile', 'phone', e.target.value)}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -155,7 +157,7 @@ const Settings = () => {
       )}
 
       {activeTab === 'appearance' && (
-        <Card>
+        <Card className="bg-white dark:bg-slate-800 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle>Appearance & Display</CardTitle>
             <CardDescription>Choose your theme preference</CardDescription>
@@ -163,14 +165,11 @@ const Settings = () => {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="text-sm font-medium">Theme</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</label>
                 <select
-                  value={settings.appearance.theme}
-                  onChange={(e) => {
-                    handleSettingChange('appearance', 'theme', e.target.value);
-                    applyTheme(e.target.value);
-                  }}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  value={theme}
+                  onChange={e => setTheme(e.target.value as 'light' | 'dark')}
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
                 >
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
@@ -179,7 +178,6 @@ const Settings = () => {
             </div>
             <Button 
               onClick={() => {
-                handleSave('appearance');
                 const event = new CustomEvent('showToast', {
                   detail: { type: 'success', title: 'Appearance Updated', message: 'Theme preference saved!' }
                 });

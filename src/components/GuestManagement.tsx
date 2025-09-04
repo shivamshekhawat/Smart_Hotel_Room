@@ -226,6 +226,19 @@ const GuestManagement = () => {
       return;
     }
 
+    // Validate check-in and check-out dates
+    if (newGuestForm.checkIn && newGuestForm.checkOut) {
+      const checkInDate = new Date(newGuestForm.checkIn);
+      const checkOutDate = new Date(newGuestForm.checkOut);
+      if (checkOutDate <= checkInDate) {
+        const event = new CustomEvent('showToast', {
+          detail: { type: 'error', title: 'Date Error', message: 'Check-out date must be after check-in date.' }
+        });
+        window.dispatchEvent(event);
+        return;
+      }
+    }
+
     // Add new guest to the list (in a real app, this would be an API call)
     const newGuest: Guest = {
       id: Date.now().toString(),
@@ -278,12 +291,9 @@ const GuestManagement = () => {
       {/* Page Header */}
       <div className="mx-auto w-full max-w-7xl">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Guest Management</h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage all guests and reservations</p>
-          </div>
+          
           <div className="flex items-center gap-2">
-            <Button 
+            {/* <Button 
               variant="outline" 
               size="sm"
               onClick={() => {
@@ -296,7 +306,7 @@ const GuestManagement = () => {
             >
               <Filter className="mr-2 h-4 w-4" />
               Filter
-            </Button>
+            </Button> */}
             <Button size="sm" onClick={() => setShowAddGuestModal(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Guest
@@ -304,38 +314,7 @@ const GuestManagement = () => {
           </div>
         </div>
       </div>
-      {/* <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Guest Management
-          </h2>
-          <p className="text-muted-foreground mt-2 text-lg">Manage all hotel guests and their information</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => {
-              const event = new CustomEvent('showToast', {
-                detail: { type: 'info', title: 'Filter Guests', message: 'Filter options coming soon!' }
-              });
-              window.dispatchEvent(event);
-            }}
-            className="hover:bg-blue-50 hover:border-blue-200 transition-all duration-200"
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
-          <Button 
-            size="sm"
-            onClick={() => setShowAddGuestModal(true)}
-            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-200"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Guest
-          </Button>
-        </div>
-      </div> */}
+     
 
       {/* Search and Filters */}
       <div className="mx-auto w-full max-w-7xl">
@@ -362,7 +341,7 @@ const GuestManagement = () => {
 
       {/* Guests Table */}
       <div className="mx-auto w-full max-w-7xl">
-      <Card className="border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+      <Card className="border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm  transition-all duration-300">
         <CardHeader className="pb-4">
           <CardTitle className="text-2xl font-bold">Guest List</CardTitle>
           <CardDescription className="text-base">All registered guests and their current status</CardDescription>
@@ -375,7 +354,7 @@ const GuestManagement = () => {
                   <th className="text-left p-4 font-medium">
                     <button
                       onClick={() => handleSort('name')}
-                      className="flex items-center space-x-1 hover:text-primary"
+                      className="flex items-center space-x-1 "
                     >
                       <span>Name</span>
                       <ArrowUpDown className="h-4 w-4" />
@@ -384,7 +363,7 @@ const GuestManagement = () => {
                   <th className="text-left p-4 font-medium">
                     <button
                       onClick={() => handleSort('roomNumber')}
-                      className="flex items-center space-x-1 hover:text-primary"
+                      className="flex items-center space-x-1 "
                     >
                       <span>Room</span>
                       <ArrowUpDown className="h-4 w-4" />
@@ -393,7 +372,7 @@ const GuestManagement = () => {
                   <th className="text-left p-4 font-medium">
                     <button
                       onClick={() => handleSort('checkIn')}
-                      className="flex items-center space-x-1 hover:text-primary"
+                      className="flex items-center space-x-1 "
                     >
                       <span>Check-in</span>
                       <ArrowUpDown className="h-4 w-4" />
@@ -402,14 +381,13 @@ const GuestManagement = () => {
                   <th className="text-left p-4 font-medium">
                     <button
                       onClick={() => handleSort('checkOut')}
-                      className="flex items-center space-x-1 hover:text-primary"
+                      className="flex items-center space-x-1 "
                     >
                       <span>Check-out</span>
                       <ArrowUpDown className="h-4 w-4" />
                     </button>
                   </th>
                   <th className="text-left p-4 font-medium">Status</th>
-                  
                   <th className="text-left p-4 font-medium">Actions</th>
                 </tr>
               </thead>
@@ -428,11 +406,6 @@ const GuestManagement = () => {
                     <td className="p-4 text-sm">{formatDate(guest.checkIn)}</td>
                     <td className="p-4 text-sm">{formatDate(guest.checkOut)}</td>
                     <td className="p-4">{getStatusBadge(guest.status)}</td>
-                    <td className="p-4">
-                      <div className="text-sm">
-                       
-                      </div>
-                    </td>
                     <td className="p-4">
                       <div className="flex items-center space-x-2">
                         <Button

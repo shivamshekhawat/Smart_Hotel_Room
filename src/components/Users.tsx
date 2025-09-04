@@ -5,9 +5,9 @@ import { Button } from './ui/button';
 import { UserPlus, Edit, Trash2, Shield } from 'lucide-react';
 
 const roleColors: Record<string, string> = {
-  Admin: 'bg-red-100 text-red-800',
-  Reception: 'bg-blue-100 text-blue-800',
-  Housekeeping: 'bg-green-100 text-green-800',
+  Admin: ' text-blue-600',
+  Reception: ' text-blue-600',
+  Housekeeping: ' text-blue-600',
 };
 
 const roleOptions = ['Admin', 'Reception', 'Housekeeping'];
@@ -37,6 +37,8 @@ const Users: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [newUser, setNewUser] = useState<User>({ username: '', email: '', role: 'Reception', accessScope: '' });
+  const [formError, setFormError] = useState<string | null>(null);
+  const isFormInvalid = !!formError;
 
   const getRoleBadge = (role: string) => (
     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>{role}</span>
@@ -67,6 +69,20 @@ const Users: React.FC = () => {
 
   const handleAddUserSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Username should not exceed 12 words
+    // const usernameWordCount = newUser.username.trim().split(/\s+/).filter(Boolean).length;
+    // if (usernameWordCount > 12) {
+    //   setFormError('Username must not exceed 12 words.');
+    //   return;
+    // }
+    const wordCount = newUser.username.trim().split(/\s+/).filter(Boolean).length;
+    if (wordCount > 12) {
+      setFormError('Username must not exceed 12 words.');
+      return;
+    }
+
+    setFormError(null);
     if (editingUser) {
       // Update existing user
       setUsers(users.map(user => 
@@ -86,10 +102,10 @@ const Users: React.FC = () => {
       {/* Page Header */}
       <div className="mx-auto w-full max-w-6xl">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div>
+          {/* <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">User Management</h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage staff roles, access scopes, and accounts</p>
-          </div>
+          </div> */}
           <div>
             <Button onClick={handleAddUser} className="flex items-center gap-2" variant="default">
               <UserPlus className="h-5 w-5" /> Add User
@@ -160,10 +176,24 @@ const Users: React.FC = () => {
                   type="text"
                   className="w-full px-3 py-2 border rounded-md bg-background"
                   value={newUser.username}
-                  onChange={e => setNewUser({ ...newUser, username: e.target.value })}
+                  onChange={e => {
+                    const value = e.target.value;
+                    const words = value.trim().split(/\s+/).filter(Boolean);
+                    if (words.length > 12) {
+                      const limited = words.slice(0, 12).join(' ');
+                      setNewUser({ ...newUser, username: limited });
+                      setFormError('Username must not exceed 12 words.');
+                    } else {
+                      setNewUser({ ...newUser, username: value });
+                      if (formError) setFormError(null);
+                    }
+                  }}
                   disabled={!!editingUser}
                   required
                 />
+                {formError && (
+                  <p className="mt-1 text-sm text-red-600">{formError}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
@@ -202,7 +232,7 @@ const Users: React.FC = () => {
                 <Button type="button" variant="ghost" onClick={() => setShowAddModal(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="default">
+                <Button type="submit" variant="default" disabled={isFormInvalid}>
                   {editingUser ? 'Update User' : 'Add User'}
                 </Button>
               </div>

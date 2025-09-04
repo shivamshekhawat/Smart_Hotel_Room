@@ -15,6 +15,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,25 +27,36 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
-      const mockUser: User = {
-        username: formData.username,
-        email: `${formData.username}@hotel.com`,
-        role: 'Administrator',
-        accessScope: 'full',
-      };
-      onLogin(mockUser);
+      if (formData.username === 'admin' && formData.password === 'password') {
+        const mockUser: User = {
+          username: formData.username,
+          email: `${formData.username}@hotel.com`,
+          role: 'Administrator',
+          accessScope: 'full',
+        };
+        onLogin(mockUser);
+      } else {
+        setError('Invalid username or password');
+      }
       setIsLoading(false);
     }, 1000);
   };
 
   return (
-    <div className="min-h-screen   flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card className="shadow-2xl border-0">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* <img 
+        src="./image/Background.png" 
+        alt="Smart Room Background" 
+        className="absolute inset-0 w-full h-full object-cover z-0" 
+        style={{ filter: 'brightness(0.7)' }}
+      /> */}
+      <div className="w-full max-w-md z-10">
+        <Card className="shadow-2xl border-0 bg-white/30 dark:bg-slate-800/30 backdrop-blur-md" style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)' }}>
           <CardHeader className="text-center pb-8">
             <div className="flex justify-center mb-6">
               <img 
@@ -108,6 +120,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 </div>
               </div>
 
+              {error && (
+                <p className="text-sm text-red-500">{error}</p>
+              )}
+
               <div className="flex items-center justify-between">
                 <label className="flex items-center space-x-2">
                   <input
@@ -139,7 +155,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
             <div className="mt-8 text-center">
               <p className="text-sm text-muted-foreground">
-                Demo credentials: admin / password
+                Demo credentials: <span className="font-medium">admin / password</span>
               </p>
             </div>
           </CardContent>
@@ -147,7 +163,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © 202 Hotel Admin Panel. All rights reserved.
+            © 2025 Hotel Admin Panel. All rights reserved.
           </p>
         </div>
       </div>

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { User } from '../App';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import Toast from './ui/toast';
+import { useTheme } from '../lib/ThemeContext';
 import {
   LayoutDashboard,
   Bed,
@@ -34,10 +35,10 @@ interface ToastMessage {
 
 const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const addToast = (toast: Omit<ToastMessage, 'id'>) => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -46,16 +47,6 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-    addToast({
-      type: 'success',
-      title: 'Theme Updated',
-      message: `Switched to ${!darkMode ? 'dark' : 'light'} mode`,
-    });
   };
 
   useEffect(() => {
@@ -81,6 +72,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
     { name: 'Configure Display', href: '/configure-display', icon: Settings },
     { name: 'User Management', href: '/users', icon: UserIcon },
     { name: 'Feedback & Reviews', href: '/feedback', icon: MessageSquare },
+    // { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   // Sidebar width for layout shift
@@ -196,11 +188,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentUser, onLogout }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={toggleDarkMode}
+                onClick={toggleTheme}
                 className="h-10 w-10 rounded-full hover:bg-sky-100 dark:hover:bg-slate-800 transition-all duration-200"
                 aria-label="Toggle dark mode"
               >
-                {darkMode ? (
+                {theme === 'dark' ? (
                   <Sun className="h-5 w-5 text-yellow-500" />
                 ) : (
                   <Moon className="h-5 w-5 text-sky-500" />

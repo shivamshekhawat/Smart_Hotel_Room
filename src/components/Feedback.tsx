@@ -162,10 +162,10 @@ const Feedback = () => {
       {/* Page Header */}
       <div className="mx-auto w-full max-w-7xl">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div>
+          {/* <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Feedback & Reviews</h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">Monitor guest satisfaction and respond quickly</p>
-          </div>
+          </div> */}
           <div className="flex items-center space-x-2">
             {/* Placeholder for export actions */}
           </div>
@@ -194,7 +194,7 @@ const Feedback = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Reviews
             </CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            <MessageSquare className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">{totalReviews}</div>

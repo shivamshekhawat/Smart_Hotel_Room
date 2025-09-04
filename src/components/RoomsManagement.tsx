@@ -54,10 +54,10 @@ interface RoomDetailsModalProps {
 }
 
 const statusColors: Record<string, string> = {
-  available: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg",
-  occupied: "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg",
-  maintenance: "bg-gradient-to-r from-yellow-500 to-amber-500 text-white shadow-lg",
-  cleaning: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg",
+  available: "text-blue-600 dark:text-blue-400",
+  occupied: "text-blue-600 dark:text-blue-400",
+  maintenance: "text-blue-600 dark:text-blue-400",
+  cleaning: "text-blue-600 dark:text-blue-400",
 }
 
 type RoomType = "standard" | "deluxe" | "suite" | "family" | "executive"
@@ -131,6 +131,7 @@ const sampleRooms: RoomDetailsModalProps["room"][] = [
     checkOut: "2023-10-10",
   },
 ]
+
 
 const RoomsManagement: React.FC = () => {
   const [selectedRoom, setSelectedRoom] = useState<RoomDetailsModalProps["room"] | null>(null)
@@ -207,75 +208,80 @@ const RoomsManagement: React.FC = () => {
     <div className="space-y-8">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Room Management</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-2">Monitor and manage all hotel rooms, occupancy, and guest services</p>
-        </div>
+
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button 
-            variant="outline" 
-            className="gap-2 h-11 px-5 border-gray-300 dark:border-gray-600 dark:hover:bg-gray-800"
+          <Button
+
+            className="gap-2 h-11 px-5 border bg-blue-500 text-white "
             onClick={() => {
               setSearchTerm("")
               setStatusFilter("all")
               setFloorFilter("all")
             }}
           >
-            <Filter className="h-4 w-4" />
             Clear Filters
           </Button>
-          <Button className="gap-2 h-11 px-5 bg-blue-600 hover:bg-blue-700" onClick={() => setShowAddRoomModal(true)}>
-            <Plus className="h-4 w-4" />
+
+          <Button
+
+            className="gap-2 h-11 px-5 text-white bg-blue-500 "
+            onClick={() => setShowAddRoomModal(true)}
+          >
             Add New Room
           </Button>
         </div>
+
       </div>
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700  transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Rooms</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{rooms.length}</p>
             </div>
-            <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+            <div className="h-12 w-12  flex items-center justify-center">
               <Bed className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
-        
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700  transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Occupied</p>
-              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{rooms.filter(r => r.status === 'occupied').length}</p>
+              <p className="text-2xl font-bold text-black-600 ">{rooms.filter(r => r.status === 'occupied').length}</p>
             </div>
-            <div className="h-12 w-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
-              <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
+            <div className="h-12 w-12  rounded-lg flex items-center justify-center">
+              <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
-        
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700  transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Available</p>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{rooms.filter(r => r.status === 'available').length}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {rooms.filter(r => r.status === 'available').length}
+              </p>
             </div>
-            <div className="h-12 w-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-              <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="h-12 w-12   rounded-lg flex items-center justify-center">
+              <CheckCircle2 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
-        
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700  transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Maintenance</p>
-              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{rooms.filter(r => r.status === 'maintenance').length}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {rooms.filter(r => r.status === 'maintenance').length}
+              </p>
             </div>
-            <div className="h-12 w-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-              <Wrench className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            <div className="h-12 w-12  rounded-lg flex items-center justify-center">
+              <Wrench className="h-6 w-6 text-blue-600" />
             </div>
           </div>
         </div>
@@ -296,7 +302,7 @@ const RoomsManagement: React.FC = () => {
               />
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="min-w-[160px]">
               <select
@@ -311,7 +317,7 @@ const RoomsManagement: React.FC = () => {
                 <option value="cleaning">Cleaning</option>
               </select>
             </div>
-            
+
             <div className="min-w-[140px]">
               <select
                 className="w-full h-12 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
@@ -326,10 +332,10 @@ const RoomsManagement: React.FC = () => {
                 ))}
               </select>
             </div>
-            
-            <Button 
-              variant="outline" 
-              className="h-12 px-6 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+
+            <Button
+              variant="pill"
+              className="h-12 px-6 border-blue text-gray-700"
               onClick={() => {
                 setSearchTerm("")
                 setStatusFilter("all")
@@ -347,7 +353,7 @@ const RoomsManagement: React.FC = () => {
         {filteredRooms.map((room) => (
           <div
             key={room.id}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 cursor-pointer group flex flex-col h-full"
             onClick={() => handleRoomClick(room)}
           >
             {/* Room Header */}
@@ -356,10 +362,11 @@ const RoomsManagement: React.FC = () => {
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Room {room.number}</h3>
                   <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <span className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-full px-2 py-1">
+                    <span className="flex items-center bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full px-2 py-1">
                       {roomTypeIcons[room.type as RoomType]}
                       <span className="ml-1 capitalize font-medium">{room.type}</span>
                     </span>
+
                     <span className="bg-gray-100 dark:bg-gray-700 rounded-full px-2 py-1 font-medium">Floor {room.floor}</span>
                   </div>
                 </div>
@@ -379,13 +386,14 @@ const RoomsManagement: React.FC = () => {
                     {room.capacity} {room.capacity === 1 ? "Guest" : "Guests"}
                   </p>
                 </div>
-                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
-                  <div className="flex items-center text-green-700 dark:text-green-400 mb-1">
-                    <Bed className="h-4 w-4 mr-1" />
-                    <span className="text-xs font-semibold uppercase">Type</span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white capitalize">{room.type}</p>
-                </div>
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+  <div className="flex items-center text-blue-700 dark:text-blue-400 mb-1">
+    <Bed className="h-4 w-4 mr-1" />
+    <span className="text-xs font-semibold uppercase">Type</span>
+  </div>
+  <p className="text-lg font-bold text-gray-900 dark:text-white capitalize">{room.type}</p>
+</div>
+
               </div>
 
               {/* Guest Information */}
@@ -409,11 +417,11 @@ const RoomsManagement: React.FC = () => {
             </div>
 
             {/* Action Footer */}
-            <div className="px-5 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+            <div className="px-5 py-4   border-t border-gray-200 dark:border-gray-600 mt-auto">
               <Button
-                variant="ghost"
+                variant="pill"
                 size="sm"
-                className="w-full text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold transition-all duration-200"
+                className="w-full font-semibold transition-all duration-200 text-blue border-black"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleRoomClick(room)
@@ -437,8 +445,8 @@ const RoomsManagement: React.FC = () => {
             No rooms match your current search criteria. Try adjusting your filters or search terms.
           </p>
           <Button
-            variant="outline"
-            className="px-6 py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            variant="pill"
+            className="px-6 py-2"
             onClick={() => {
               setSearchTerm("")
               setStatusFilter("all")
@@ -461,7 +469,7 @@ const RoomsManagement: React.FC = () => {
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 w-full max-w-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">Add New Room</h3>
-              <button className="text-2xl text-gray-400 hover:text-gray-700" onClick={() => setShowAddRoomModal(false)}>&times;</button>
+              <button className="text-2xl text-gray-400 " onClick={() => setShowAddRoomModal(false)}>&times;</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -483,8 +491,8 @@ const RoomsManagement: React.FC = () => {
                 <input type="number" className="w-full mt-1 px-3 py-2 border rounded-md bg-background" value={newRoom.floor} onChange={e => setNewRoom({ ...newRoom, floor: Number(e.target.value) })} />
               </div>
               <div>
-                <label className="text-sm font-medium">Status</label>
-                <select className="w-full mt-1 px-3 py-2 border rounded-md bg-background" value={newRoom.status} onChange={e => setNewRoom({ ...newRoom, status: e.target.value as RoomStatus })}>
+                <label className="text-sm font-medium ">Status</label>
+                <select className="w-full mt-1 px-3 py-2 border rounded-md " value={newRoom.status} onChange={e => setNewRoom({ ...newRoom, status: e.target.value as RoomStatus })}>
                   <option value="available">Available</option>
                   <option value="occupied">Occupied</option>
                   <option value="maintenance">Maintenance</option>
@@ -497,7 +505,7 @@ const RoomsManagement: React.FC = () => {
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-6">
-              <Button variant="ghost" onClick={() => setShowAddRoomModal(false)}>Cancel</Button>
+              <Button variant="pill" onClick={() => setShowAddRoomModal(false)}>Cancel</Button>
               <Button onClick={() => {
                 if (!newRoom.number) return;
                 setRooms(prev => [...prev, { ...newRoom, id: Date.now().toString() }]);
