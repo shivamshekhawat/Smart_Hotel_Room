@@ -22,29 +22,13 @@ export interface User {
   accessScope: string;
 }
 
-export interface Room {
-  id: string;
-  number: string;
-  floor: number;
-  guestName: string;
-  mode: string;
-  lastAction: string;
-  tabletStatus: string;
-  macAddress: string;
-  shellyId: string;
-  weatherCode: string;
-}
+// ✅ ProtectedRoute
+const ProtectedRoute = ({ isAuthenticated, children }: { isAuthenticated: boolean; children: JSX.Element }) => {
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+};
 
-export interface FeedbackItem {
-  id: string;
-  room: string;
-  guestName: string;
-  rating: number;
-  comment: string;
-  timestamp: string;
-}
-
-// ✅ Wrap app so we can use hooks like useNavigate
+// ✅ AppWrapper
 const AppWrapper = () => (
   <ThemeProvider>
     <Router>
@@ -59,89 +43,15 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Check for existing authentication on app load
+  // Check for stored auth info
   useEffect(() => {
-    const checkAuth = () => {
-      try {
-        const storedAuth = localStorage.getItem('isAuthenticated');
-        const storedUser = localStorage.getItem('currentUser');
-        
-        if (storedAuth === 'true' && storedUser) {
-          setCurrentUser(JSON.parse(storedUser));
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('currentUser');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  // Prevent logout via browser shortcuts and context menu
-  useEffect(() => {
-    const preventLogout = (e: KeyboardEvent) => {
-      if ((e.ctrlKey && e.key === 'q') || 
-          (e.altKey && e.key === 'F4') || 
-          (e.ctrlKey && e.key === 'w')) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    };
-
-    const originalClose = window.close;
-    window.close = () => {
-      console.log('Window close prevented for security');
-      return false;
-    };
-
-    const preventUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = '';
-      return '';
-    };
-
-    const preventContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      return false;
-    };
-
-    const preventDevTools = (e: KeyboardEvent) => {
-      if (e.key === 'F12' || 
-          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-          (e.ctrlKey && e.key === 'u')) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    };
-
-    const disableRightClick = (e: MouseEvent) => {
-      if (e.button === 2) {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    document.addEventListener('keydown', preventLogout);
-    document.addEventListener('keydown', preventDevTools);
-    document.addEventListener('contextmenu', preventContextMenu);
-    document.addEventListener('mousedown', disableRightClick);
-    window.addEventListener('beforeunload', preventUnload);
-
-    return () => {
-      document.removeEventListener('keydown', preventLogout);
-      document.removeEventListener('keydown', preventDevTools);
-      document.removeEventListener('contextmenu', preventContextMenu);
-      document.removeEventListener('mousedown', disableRightClick);
-      window.removeEventListener('beforeunload', preventUnload);
-      window.close = originalClose;
-    };
+    const storedAuth = localStorage.getItem('isAuthenticated');
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedAuth === 'true' && storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
   }, []);
 
   const handleLogin = (user: User) => {
@@ -149,13 +59,12 @@ const App = () => {
     setIsAuthenticated(true);
     localStorage.setItem('isAuthenticated', 'true');
     localStorage.setItem('currentUser', JSON.stringify(user));
-    // ✅ Navigate without reload
     navigate('/dashboard', { replace: true });
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
     setCurrentUser(null);
+    setIsAuthenticated(false);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('currentUser');
     navigate('/login', { replace: true });
@@ -174,54 +83,41 @@ const App = () => {
 
   return (
     <Routes>
-      {/* Public Route */}
+      {/* Public Login Route */}
       <Route
         path="/login"
-        element={
-          isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <LoginScreen onLogin={handleLogin} />
-          )
-        }
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen onLogin={handleLogin} />}
       />
 
-      {/* Root path */}
+      {/* Root "/" route always goes to login if unauthenticated */}
+      <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+
+      {/* Protected Routes wrapped with Layout */}
       <Route
-        path="/"
         element={
-          isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <Layout currentUser={currentUser} onLogout={handleLogout} />
+          </ProtectedRoute>
         }
-      />
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/rooms" element={<RoomsManagement />} />
+        <Route path="/guests" element={<GuestManagement />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/feedback" element={<Feedback />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/configure-display" element={<ConfigureDisplay />} />
+        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/clean-requests" element={<CleanRequests />} />
+        <Route path="/technical-issues" element={<TechnicalIssues />} />
+      </Route>
 
-      {/* Protected Routes */}
-      {isAuthenticated ? (
-        <Route
-          element={<Layout currentUser={currentUser} onLogout={handleLogout} />}
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/rooms" element={<RoomsManagement />} />
-          <Route path="/guests" element={<GuestManagement />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/configure-display" element={<ConfigureDisplay />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/clean-requests" element={<CleanRequests />} />
-          <Route path="/technical-issues" element={<TechnicalIssues />} />
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Route>
-      ) : (
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      )}
+      {/* Catch-all: redirect unauthenticated users to login */}
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
     </Routes>
   );
 };
+
 
 export default AppWrapper;
