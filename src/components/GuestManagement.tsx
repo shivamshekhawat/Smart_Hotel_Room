@@ -1,20 +1,22 @@
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import {
   Search,
-  Filter,
   MoreHorizontal,
   ArrowUpDown,
-  Phone,
-  Mail,
-  MapPin,
   LogOut,
   Plus,
-  X
+  X,
 } from 'lucide-react';
-import { formatDate, formatCurrency } from '../lib/utils';
+import { formatDate } from '../lib/utils';
 
 interface Guest {
   id: string;
@@ -25,7 +27,6 @@ interface Guest {
   checkIn: string;
   checkOut: string;
   status: 'checked-in' | 'checked-out' | 'pending';
-
   address: string;
   specialRequests: string[];
   lastActivity: string;
@@ -40,7 +41,6 @@ interface NewGuestForm {
   checkIn: string;
   checkOut: string;
   specialRequests: string;
-
 }
 
 const GuestManagement = () => {
@@ -48,7 +48,8 @@ const GuestManagement = () => {
   const [sortBy, setSortBy] = useState<keyof Guest>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
-  const [showAddGuestModal, setShowAddGuestModal] = useState(false);
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [newGuestForm, setNewGuestForm] = useState<NewGuestForm>({
     name: '',
     email: '',
@@ -58,10 +59,9 @@ const GuestManagement = () => {
     checkIn: '',
     checkOut: '',
     specialRequests: '',
-
   });
 
-  const guests: Guest[] = [
+  const [guestList, setGuestList] = useState<Guest[]>([
     {
       id: '1',
       name: 'John Smith',
@@ -71,10 +71,9 @@ const GuestManagement = () => {
       checkIn: '2024-01-15',
       checkOut: '2024-01-18',
       status: 'checked-in',
-
       address: '123 Main St, New York, NY 10001',
       specialRequests: ['Late check-out', 'Extra towels'],
-      lastActivity: '2 hours ago'
+      lastActivity: '2 hours ago',
     },
     {
       id: '2',
@@ -85,10 +84,9 @@ const GuestManagement = () => {
       checkIn: '2024-01-14',
       checkOut: '2024-01-20',
       status: 'checked-in',
-
       address: '456 Oak Ave, Los Angeles, CA 90210',
       specialRequests: ['Room service', 'Wake-up call'],
-      lastActivity: '1 hour ago'
+      lastActivity: '1 hour ago',
     },
     {
       id: '3',
@@ -99,10 +97,9 @@ const GuestManagement = () => {
       checkIn: '2024-01-16',
       checkOut: '2024-01-19',
       status: 'pending',
-
       address: '789 Pine Rd, Chicago, IL 60601',
       specialRequests: [],
-      lastActivity: '30 minutes ago'
+      lastActivity: '30 minutes ago',
     },
     {
       id: '4',
@@ -113,13 +110,17 @@ const GuestManagement = () => {
       checkIn: '2024-01-10',
       checkOut: '2024-01-17',
       status: 'checked-out',
-
       address: '321 Elm St, Miami, FL 33101',
       specialRequests: ['Early check-in'],
-      lastActivity: '1 day ago'
-    }
-  ];
+      lastActivity: '1 day ago',
+    },
+  ]);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Status badge
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'checked-in':
@@ -133,6 +134,7 @@ const GuestManagement = () => {
     }
   };
 
+  // Sorting
   const handleSort = (column: keyof Guest) => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -142,11 +144,117 @@ const GuestManagement = () => {
     }
   };
 
-  const filteredAndSortedGuests = guests
-    .filter(guest =>
-      guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      guest.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      guest.roomNumber.includes(searchTerm)
+  // Add Guest
+  const handleAddGuest = () => {
+    // Validate required fields
+    if (!newGuestForm.name || !newGuestForm.email || !newGuestForm.roomNumber) {
+      alert('Please fill in all required fields (Name, Email, Room Number)');
+      return;
+    }
+
+    const newGuest: Guest = {
+      id: Date.now().toString(),
+      name: newGuestForm.name,
+      email: newGuestForm.email,
+      phone: newGuestForm.phone,
+      address: newGuestForm.address,
+      roomNumber: newGuestForm.roomNumber,
+      checkIn: newGuestForm.checkIn,
+      checkOut: newGuestForm.checkOut,
+      specialRequests: newGuestForm.specialRequests
+        ? newGuestForm.specialRequests.split(',').map((s) => s.trim())
+        : [],
+      status: 'pending',
+      lastActivity: 'Just now',
+    };
+
+    setGuestList([newGuest, ...guestList]);
+    resetForm();
+    
+    // Show success message
+    alert(`Guest ${newGuestForm.name} has been added successfully!`);
+  };
+
+  // Update Guest
+  const handleUpdateGuest = () => {
+    if (!selectedGuest) return;
+
+    // Validate required fields
+    if (!newGuestForm.name || !newGuestForm.email || !newGuestForm.roomNumber) {
+      alert('Please fill in all required fields (Name, Email, Room Number)');
+      return;
+    }
+
+    const updatedGuests = guestList.map((g) =>
+      g.id === selectedGuest.id
+        ? {
+            ...g,
+            name: newGuestForm.name,
+            email: newGuestForm.email,
+            phone: newGuestForm.phone,
+            address: newGuestForm.address,
+            roomNumber: newGuestForm.roomNumber,
+            checkIn: newGuestForm.checkIn,
+            checkOut: newGuestForm.checkOut,
+            specialRequests: newGuestForm.specialRequests
+              ? newGuestForm.specialRequests.split(',').map((s) => s.trim())
+              : [],
+            lastActivity: 'Just now',
+          }
+        : g
+    );
+
+    setGuestList(updatedGuests);
+    setSelectedGuest(null);
+    setShowUpdateModal(false);
+    resetForm();
+    
+    // Show success message
+    alert(`Guest ${newGuestForm.name} has been updated successfully!`);
+  };
+
+  const resetForm = () => {
+    setNewGuestForm({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      roomNumber: '',
+      checkIn: '',
+      checkOut: '',
+      specialRequests: '',
+    });
+    setSelectedGuest(null);
+    setShowGuestModal(false);
+    setShowUpdateModal(false);
+  };
+
+  const handleOpenModal = (guest?: Guest) => {
+    if (guest) {
+      setSelectedGuest(guest);
+      setNewGuestForm({
+        name: guest.name,
+        email: guest.email,
+        phone: guest.phone,
+        address: guest.address,
+        roomNumber: guest.roomNumber,
+        checkIn: guest.checkIn,
+        checkOut: guest.checkOut,
+        specialRequests: guest.specialRequests.join(', '),
+      });
+      setShowUpdateModal(true);
+    } else {
+      setShowGuestModal(true);
+    }
+  };
+
+  // Filter & sort
+  const filteredAndSortedGuests = guestList
+    .filter(
+      (guest) =>
+        guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        guest.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        guest.roomNumber.includes(searchTerm)
     )
     .sort((a, b) => {
       const aValue = a[sortBy];
@@ -158,446 +266,438 @@ const GuestManagement = () => {
           : bValue.localeCompare(aValue);
       }
 
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
-      }
-
       return 0;
     });
 
-  const GuestProfilePopover = ({ guest }: { guest: Guest }) => (
-    <Card className="w-80">
-      <CardHeader>
-        <CardTitle className="text-lg">{guest.name}</CardTitle>
-        <CardDescription>Guest Details</CardDescription>
+  // Pagination
+  const totalGuests = filteredAndSortedGuests.length;
+  const totalPages = Math.ceil(totalGuests / itemsPerPage);
+  const paginatedGuests = filteredAndSortedGuests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  return (
+    <div className="space-y-6 p-4 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Guest Management</h1>
+        <Button
+          size="sm"
+          variant="default"
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+          onClick={() => handleOpenModal()}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Guest
+        </Button>
+      </div>
+
+      {/* Search */}
+      <Card>
+        <CardContent className="p-4 flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search guests"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full pl-10 pr-4 py-2 border rounded-md"
+            />
+          </div>
+          <span className="text-sm">{totalGuests} guests found</span>
+        </CardContent>
+      </Card>
+
+      {/* Guest Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Guest List</CardTitle>
+          <CardDescription>
+            All registered guests and their current status
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px]">
+              <thead className="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                  <th className="p-3 text-left">
+                    <button
+                      onClick={() => handleSort('name')}
+                      className="flex items-center gap-1"
+                    >
+                      Name <ArrowUpDown className="h-4 w-4" />
+                    </button>
+                  </th>
+                  <th className="p-3 text-left">Room</th>
+                  <th className="p-3 text-left">Check-in</th>
+                  <th className="p-3 text-left">Check-out</th>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedGuests.map((guest) => (
+                  <tr
+                    key={guest.id}
+                    className="border-t hover:bg-muted/5 dark:hover:bg-muted/10 transition-colors"
+                  >
+                    <td className="p-3">
+                      <div className="font-medium">{guest.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {guest.email}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant="outline">Room {guest.roomNumber}</Badge>
+                    </td>
+                    <td className="p-3 text-sm">{formatDate(guest.checkIn)}</td>
+                    <td className="p-3 text-sm">{formatDate(guest.checkOut)}</td>
+                    <td className="p-3">{getStatusBadge(guest.status)}</td>
+                    <td className="p-3 flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleOpenModal(guest)}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                      {guest.status === 'checked-in' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => alert(`Checking out ${guest.name}`)}
+                        >
+                          <LogOut className="h-4 w-4 mr-1" />
+                          Check-out
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Rows per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="border rounded p-1 text-sm"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+              >
+                Prev
+              </Button>
+              <span className="text-sm">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Add Guest Modal */}
+     {showGuestModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 overflow-auto">
+    <Card className="w-full max-w-lg p-6 relative">
+      <CardHeader className="flex justify-center items-center relative">
+        <CardTitle>Add Guest</CardTitle>
+        {/* Absolute positioned X button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={resetForm}
+          className="absolute top-2 right-2"
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">{guest.email}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Phone className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">{guest.phone}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">{guest.address}</span>
-          </div>
-        </div>
+      <CardContent className="space-y-3 max-h-[80vh] overflow-y-auto">
+        <input
+          type="text"
+          placeholder="Name *"
+          value={newGuestForm.name}
+          onChange={(e) =>
+            setNewGuestForm({ ...newGuestForm, name: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email *"
+          value={newGuestForm.email}
+          onChange={(e) =>
+            setNewGuestForm({ ...newGuestForm, email: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Phone"
+          value={newGuestForm.phone}
+          onChange={(e) =>
+            setNewGuestForm({ ...newGuestForm, phone: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Room Number *"
+          value={newGuestForm.roomNumber}
+          onChange={(e) =>
+            setNewGuestForm({ ...newGuestForm, roomNumber: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+          required
+        />
+        <label className="block text-sm">Check-in</label>
+        <input
+          type="date"
+          value={newGuestForm.checkIn}
+          onChange={(e) =>
+            setNewGuestForm({ ...newGuestForm, checkIn: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+        />
+        <label className="block text-sm">Check-out</label>
+        <input
+          type="date"
+          value={newGuestForm.checkOut}
+          onChange={(e) =>
+            setNewGuestForm({ ...newGuestForm, checkOut: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+        />
+        <textarea
+          placeholder="Address"
+          value={newGuestForm.address}
+          onChange={(e) =>
+            setNewGuestForm({ ...newGuestForm, address: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+        />
+        <textarea
+          placeholder="Special Requests (comma separated)"
+          value={newGuestForm.specialRequests}
+          onChange={(e) =>
+            setNewGuestForm({
+              ...newGuestForm,
+              specialRequests: e.target.value,
+            })
+          }
+          className="w-full p-2 border rounded"
+        />
 
-        <div className="border-t pt-4">
-          <h4 className="font-medium mb-2">Special Requests</h4>
-          {guest.specialRequests.length > 0 ? (
-            <div className="space-y-1">
-              {guest.specialRequests.map((request, index) => (
-                <Badge key={index} variant="outline" className="mr-1">
-                  {request}
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No special requests</p>
-          )}
-        </div>
-
-        <div className="border-t pt-4">
-          <h4 className="font-medium mb-2">Payment Status</h4>
-          <div className="space-y-1">
-
-
-            <div className="flex justify-between text-sm">
-
-            </div>
-          </div>
+        {/* Buttons */}
+        <div className="flex justify-end gap-2 mt-2 sticky bottom-0 bg-background p-2">
+          <Button
+            variant="outline"
+            onClick={resetForm}
+            className="mr-2"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="default"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={handleAddGuest}
+          >
+            Add Guest
+          </Button>
         </div>
       </CardContent>
     </Card>
-  );
+  </div>
+)}
 
-  const handleAddGuest = () => {
-    // Validate form
-    if (!newGuestForm.name || !newGuestForm.email || !newGuestForm.phone || !newGuestForm.roomNumber) {
-      const event = new CustomEvent('showToast', {
-        detail: { type: 'error', title: 'Validation Error', message: 'Please fill in all required fields' }
-      });
-      window.dispatchEvent(event);
-      return;
-    }
-
-    // Validate check-in and check-out dates
-    if (newGuestForm.checkIn && newGuestForm.checkOut) {
-      const checkInDate = new Date(newGuestForm.checkIn);
-      const checkOutDate = new Date(newGuestForm.checkOut);
-      if (checkOutDate <= checkInDate) {
-        const event = new CustomEvent('showToast', {
-          detail: { type: 'error', title: 'Date Error', message: 'Check-out date must be after check-in date.' }
-        });
-        window.dispatchEvent(event);
-        return;
-      }
-    }
-
-    // Add new guest to the list (in a real app, this would be an API call)
-    const newGuest: Guest = {
-      id: Date.now().toString(),
-      name: newGuestForm.name,
-      email: newGuestForm.email,
-      phone: newGuestForm.phone,
-      address: newGuestForm.address,
-      roomNumber: newGuestForm.roomNumber,
-      checkIn: newGuestForm.checkIn,
-      checkOut: newGuestForm.checkOut,
-      status: 'pending',
-
-      specialRequests: newGuestForm.specialRequests ? [newGuestForm.specialRequests] : [],
-      lastActivity: 'Just now'
-    };
-
-    // In a real app, you would add this to your state or send to API
-    console.log('New guest added:', newGuest);
-
-    // Show success message
-    const event = new CustomEvent('showToast', {
-      detail: { type: 'success', title: 'Guest Added', message: `${newGuestForm.name} has been successfully added` }
-    });
-    window.dispatchEvent(event);
-
-    // Reset form and close modal
-    setNewGuestForm({
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
-      roomNumber: '',
-      checkIn: '',
-      checkOut: '',
-      specialRequests: '',
-
-    });
-    setShowAddGuestModal(false);
-  };
-
-  const handleFormChange = (field: keyof NewGuestForm, value: string | number) => {
-    setNewGuestForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  return (
-    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-      {/* Page Header */}
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-
-          <div className="flex items-center gap-2">
-            {/* <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                const event = new CustomEvent('showToast', {
-                  detail: { type: 'info', title: 'Filter Guests', message: 'Filter options coming soon!' }
-                });
-                window.dispatchEvent(event);
-              }}
-              className="hidden sm:inline-flex"
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-            </Button> */}
-       <Button
-  size="sm"
-  variant="default"
-  className="bg-blue-600 text-white hover:bg-blue-700"
-  onClick={() => setShowAddGuestModal(!showAddGuestModal)}
->
-  <Plus className="mr-2 h-4 w-4" />
-  Add Guest
-</Button>
-
-
-
-
-
-
-
-          </div>
-        </div>
-      </div>
-
-
-      {/* Search and Filters */}
-      <div className="mx-auto w-full max-w-7xl">
-        <Card className="border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search guests "
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-background focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                />
-              </div>
-              <div className="text-sm text-muted-foreground font-medium whitespace-nowrap">
-                {filteredAndSortedGuests.length} guests found
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Guests Table */}
-      <div className="mx-auto w-full max-w-7xl">
-        <Card className="border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm  transition-all duration-300">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-2xl font-bold">Guest List</CardTitle>
-            <CardDescription className="text-base">All registered guests and their current status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px]">
-                <thead className="bg-gray-50/70 dark:bg-slate-700/50">
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left p-4 font-medium">
-                      <button
-                        onClick={() => handleSort('name')}
-                        className="flex items-center space-x-1 "
-                      >
-                        <span>Name</span>
-                        <ArrowUpDown className="h-4 w-4" />
-                      </button>
-                    </th>
-                    <th className="text-left p-4 font-medium">
-                      <button
-                        onClick={() => handleSort('roomNumber')}
-                        className="flex items-center space-x-1 "
-                      >
-                        <span>Room</span>
-                        <ArrowUpDown className="h-4 w-4" />
-                      </button>
-                    </th>
-                    <th className="text-left p-4 font-medium">
-                      <button
-                        onClick={() => handleSort('checkIn')}
-                        className="flex items-center space-x-1 "
-                      >
-                        <span>Check-in</span>
-                        <ArrowUpDown className="h-4 w-4" />
-                      </button>
-                    </th>
-                    <th className="text-left p-4 font-medium">
-                      <button
-                        onClick={() => handleSort('checkOut')}
-                        className="flex items-center space-x-1 "
-                      >
-                        <span>Check-out</span>
-                        <ArrowUpDown className="h-4 w-4" />
-                      </button>
-                    </th>
-                    <th className="text-left p-4 font-medium">Status</th>
-                    <th className="text-left p-4 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredAndSortedGuests.map((guest) => (
-                    <tr key={guest.id} className="hover:bg-muted/50">
-                      <td className="p-4">
-                        <div>
-                          <div className="font-medium">{guest.name}</div>
-                          <div className="text-sm text-muted-foreground">{guest.email}</div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="outline">Room {guest.roomNumber}</Badge>
-                      </td>
-                      <td className="p-4 text-sm">{formatDate(guest.checkIn)}</td>
-                      <td className="p-4 text-sm">{formatDate(guest.checkOut)}</td>
-                      <td className="p-4">{getStatusBadge(guest.status)}</td>
-                      <td className="p-4">
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedGuest(guest)}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                          {guest.status === 'checked-in' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const event = new CustomEvent('showToast', {
-                                  detail: { type: 'success', title: 'Check-out', message: `Processing check-out for ${guest.name}` }
-                                });
-                                window.dispatchEvent(event);
-                              }}
-                            >
-                              <LogOut className="h-4 w-4 mr-1" />
-                              Check-out
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Guest Profile Popover */}
-      {selectedGuest && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background rounded-lg shadow-lg">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Guest Profile</h3>
+      {/* Update Guest Modal */}
+      {showUpdateModal && selectedGuest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 overflow-auto">
+          <Card className="w-full max-w-lg p-6 relative">
+            <CardHeader className="flex justify-center items-center relative">
+              <CardTitle>Update Guest - {selectedGuest.name}</CardTitle>
+              {/* Absolute positioned X button */}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setSelectedGuest(null)}
-              >
-                ×
-              </Button>
-            </div>
-            <GuestProfilePopover guest={selectedGuest} />
-          </div>
-        </div>
-      )}
-
-      {/* Add Guest Modal */}
-      {showAddGuestModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Add New Guest</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAddGuestModal(false)}
+                onClick={resetForm}
+                className="absolute top-2 right-2"
               >
                 <X className="h-4 w-4" />
               </Button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </CardHeader>
+            <CardContent className="space-y-3 max-h-[80vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Full Name *</label>
+                  <label className="block text-sm font-medium mb-1">Name *</label>
                   <input
                     type="text"
                     value={newGuestForm.name}
-                    onChange={(e) => handleFormChange('name', e.target.value)}
-                    className="w-full p-3 border rounded-md bg-background"
-                    placeholder="Enter full name"
+                    onChange={(e) =>
+                      setNewGuestForm({ ...newGuestForm, name: e.target.value })
+                    }
+                    className="w-full p-2 border rounded"
+                    required
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-2">Email *</label>
+                  <label className="block text-sm font-medium mb-1">Email *</label>
                   <input
                     type="email"
                     value={newGuestForm.email}
-                    onChange={(e) => handleFormChange('email', e.target.value)}
-                    className="w-full p-3 border rounded-md bg-background"
-                    placeholder="Enter email address"
+                    onChange={(e) =>
+                      setNewGuestForm({ ...newGuestForm, email: e.target.value })
+                    }
+                    className="w-full p-2 border rounded"
+                    required
                   />
                 </div>
-
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Phone *</label>
+                  <label className="block text-sm font-medium mb-1">Phone</label>
                   <input
-                    type="tel"
+                    type="text"
                     value={newGuestForm.phone}
-                    onChange={(e) => handleFormChange('phone', e.target.value)}
-                    className="w-full p-3 border rounded-md bg-background"
-                    placeholder="Enter phone number"
+                    onChange={(e) =>
+                      setNewGuestForm({ ...newGuestForm, phone: e.target.value })
+                    }
+                    className="w-full p-2 border rounded"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-2">Room Number *</label>
+                  <label className="block text-sm font-medium mb-1">Room Number *</label>
                   <input
                     type="text"
                     value={newGuestForm.roomNumber}
-                    onChange={(e) => handleFormChange('roomNumber', e.target.value)}
-                    className="w-full p-3 border rounded-md bg-background"
-                    placeholder="Enter room number"
+                    onChange={(e) =>
+                      setNewGuestForm({ ...newGuestForm, roomNumber: e.target.value })
+                    }
+                    className="w-full p-2 border rounded"
+                    required
                   />
                 </div>
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Check-in Date</label>
+                  <label className="block text-sm font-medium mb-1">Check-in</label>
                   <input
                     type="date"
                     value={newGuestForm.checkIn}
-                    onChange={(e) => handleFormChange('checkIn', e.target.value)}
-                    className="w-full p-3 border rounded-md bg-background"
+                    onChange={(e) =>
+                      setNewGuestForm({ ...newGuestForm, checkIn: e.target.value })
+                    }
+                    className="w-full p-2 border rounded"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-2">Check-out Date</label>
+                  <label className="block text-sm font-medium mb-1">Check-out</label>
                   <input
                     type="date"
                     value={newGuestForm.checkOut}
-                    onChange={(e) => handleFormChange('checkOut', e.target.value)}
-                    className="w-full p-3 border rounded-md bg-background"
+                    onChange={(e) =>
+                      setNewGuestForm({ ...newGuestForm, checkOut: e.target.value })
+                    }
+                    className="w-full p-2 border rounded"
                   />
                 </div>
-
-                <div>
-
-                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Address</label>
-                <input
-                  type="text"
-                  value={newGuestForm.address}
-                  onChange={(e) => handleFormChange('address', e.target.value)}
-                  className="w-full p-3 border rounded-md bg-background"
-                  placeholder="Enter address"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Special Requests</label>
+                <label className="block text-sm font-medium mb-1">Address</label>
                 <textarea
-                  value={newGuestForm.specialRequests}
-                  onChange={(e) => handleFormChange('specialRequests', e.target.value)}
-                  className="w-full p-3 border rounded-md bg-background"
-                  placeholder="Enter any special requests or notes"
+                  value={newGuestForm.address}
+                  onChange={(e) =>
+                    setNewGuestForm({ ...newGuestForm, address: e.target.value })
+                  }
+                  className="w-full p-2 border rounded"
                   rows={3}
                 />
               </div>
-            </div>
 
-            <div className="p-6 border-t flex items-center justify-end space-x-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowAddGuestModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddGuest}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Guest
-              </Button>
-            </div>
-          </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Special Requests</label>
+                <textarea
+                  placeholder="Enter special requests separated by commas"
+                  value={newGuestForm.specialRequests}
+                  onChange={(e) =>
+                    setNewGuestForm({
+                      ...newGuestForm,
+                      specialRequests: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border rounded"
+                  rows={3}
+                />
+              </div>
+
+              {/* Current Status Display */}
+              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                <label className="block text-sm font-medium mb-1">Current Status</label>
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(selectedGuest.status)}
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Last activity: {selectedGuest.lastActivity}
+                  </span>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex justify-end gap-2 mt-4 sticky bottom-0 bg-background p-2">
+                <Button
+                  variant="outline"
+                  onClick={resetForm}
+                  className="mr-2"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                  onClick={handleUpdateGuest}
+                >
+                  Update Guest
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
+
     </div>
   );
 };

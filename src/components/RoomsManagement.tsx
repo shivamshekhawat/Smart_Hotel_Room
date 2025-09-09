@@ -145,6 +145,7 @@ const RoomsManagement: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
   const [rooms, setRooms] = useState<RoomDetailsModalProps["room"][]>(sampleRooms)
   const [showAddRoomModal, setShowAddRoomModal] = useState(false)
+  const [showUpdateRoomModal, setShowUpdateRoomModal] = useState(false)
   const [newRoom, setNewRoom] = useState<RoomDetailsModalProps["room"]>({
     id: (Date.now()).toString(),
     number: "",
@@ -204,6 +205,55 @@ const RoomsManagement: React.FC = () => {
     ) : (
       <ArrowUpDown className="ml-1 h-3 w-3" />
     )
+  }
+
+  const handleAddRoom = () => {
+    if (!newRoom.number) {
+      const event = new CustomEvent('showToast', {
+        detail: { type: 'error', title: 'Validation Error', message: 'Please enter room number' }
+      });
+      window.dispatchEvent(event);
+      return;
+    }
+
+    setRooms(prev => [...prev, { ...newRoom, id: Date.now().toString() }]);
+    setShowAddRoomModal(false);
+    setNewRoom({ id: (Date.now()).toString(), number: "", type: "standard", floor: 1, status: "available", capacity: 2 });
+    
+    const event = new CustomEvent('showToast', {
+      detail: { type: 'success', title: 'Room Added', message: `Room ${newRoom.number} has been successfully added` }
+    });
+    window.dispatchEvent(event);
+  }
+
+  const handleUpdateRoom = () => {
+    if (!newRoom.number) {
+      const event = new CustomEvent('showToast', {
+        detail: { type: 'error', title: 'Validation Error', message: 'Please enter room number' }
+      });
+      window.dispatchEvent(event);
+      return;
+    }
+
+    const updatedRooms = rooms.map((room) =>
+      room.id === newRoom.id
+        ? { ...newRoom }
+        : room
+    );
+
+    setRooms(updatedRooms);
+    setShowUpdateRoomModal(false);
+    setNewRoom({ id: (Date.now()).toString(), number: "", type: "standard", floor: 1, status: "available", capacity: 2 });
+    
+    const event = new CustomEvent('showToast', {
+      detail: { type: 'success', title: 'Room Updated', message: `Room ${newRoom.number} has been successfully updated` }
+    });
+    window.dispatchEvent(event);
+  }
+
+  const handleOpenUpdateModal = (room: RoomDetailsModalProps["room"]) => {
+    setNewRoom(room);
+    setShowUpdateRoomModal(true);
   }
 
   return (
@@ -430,27 +480,37 @@ const RoomsManagement: React.FC = () => {
             </div>
 
             {/* Action Footer */}
-
             <div className="px-5 py-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
-              <Button
-                variant="pill"
-                size="sm"
-                className={`w-full font-semibold transition-all duration-200
-    border
-    border-blue-300 dark:border-blue-400
-    bg-transparent
-    text-blue-600
-  `}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveRoomId(room.id);
-                  handleRoomClick(room);
-                }}
-              >
-                View Details
-              </Button>
-
-
+              <div className="flex gap-2">
+                <Button
+                  variant="pill"
+                  size="sm"
+                  className={`flex-1 font-semibold transition-all duration-200
+      border
+      border-blue-300 dark:border-blue-400
+      bg-transparent
+      text-blue-600
+    `}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveRoomId(room.id);
+                    handleRoomClick(room);
+                  }}
+                >
+                  View Details
+                </Button>
+                <Button
+                  variant="pill"
+                  size="sm"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold transition-all duration-200"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenUpdateModal(room);
+                  }}
+                >
+                  Edit
+                </Button>
+              </div>
             </div>
 
 
@@ -530,13 +590,116 @@ const RoomsManagement: React.FC = () => {
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-6">
-              <Button variant="pill" onClick={() => setShowAddRoomModal(false)}>Cancel</Button>
-              <Button onClick={() => {
-                if (!newRoom.number) return;
-                setRooms(prev => [...prev, { ...newRoom, id: Date.now().toString() }]);
-                setShowAddRoomModal(false);
-                setNewRoom({ id: (Date.now()).toString(), number: "", type: "standard", floor: 1, status: "available", capacity: 2 });
-              }}>Add Room</Button>
+              <Button 
+                variant="outline"
+                onClick={() => setShowAddRoomModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAddRoom}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Add Room
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Room Modal */}
+      {showUpdateRoomModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 w-full max-w-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Update Room - {newRoom.number}</h3>
+              <button className="text-2xl text-gray-400" onClick={() => setShowUpdateRoomModal(false)}>&times;</button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Room Number *</label>
+                <input 
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background" 
+                  value={newRoom.number} 
+                  onChange={e => setNewRoom({ ...newRoom, number: e.target.value })} 
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Type</label>
+                <select 
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background" 
+                  value={newRoom.type} 
+                  onChange={e => setNewRoom({ ...newRoom, type: e.target.value as RoomType })}
+                >
+                  <option value="standard">Standard</option>
+                  <option value="deluxe">Deluxe</option>
+                  <option value="suite">Suite</option>
+                  <option value="family">Family</option>
+                  <option value="executive">Executive</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Floor</label>
+                <input 
+                  type="number" 
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background" 
+                  value={newRoom.floor} 
+                  onChange={e => setNewRoom({ ...newRoom, floor: Number(e.target.value) })} 
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Status</label>
+                <select 
+                  className="w-full mt-1 px-3 py-2 border rounded-md" 
+                  value={newRoom.status} 
+                  onChange={e => setNewRoom({ ...newRoom, status: e.target.value as RoomStatus })}
+                >
+                  <option value="available">Available</option>
+                  <option value="occupied">Occupied</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="cleaning">Cleaning</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Capacity</label>
+                <input 
+                  type="number" 
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background" 
+                  value={newRoom.capacity} 
+                  onChange={e => setNewRoom({ ...newRoom, capacity: Number(e.target.value) })} 
+                />
+              </div>
+            </div>
+            
+            {/* Current Room Info */}
+            <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <label className="block text-sm font-medium mb-2">Current Room Information</label>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-600 dark:text-gray-400">Room ID:</span>
+                  <span className="ml-2 font-medium">{newRoom.id}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600 dark:text-gray-400">Type:</span>
+                  <span className="ml-2 font-medium capitalize">{newRoom.type}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <Button 
+                variant="outline"
+                onClick={() => setShowUpdateRoomModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleUpdateRoom}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Update Room
+              </Button>
             </div>
           </div>
         </div>
