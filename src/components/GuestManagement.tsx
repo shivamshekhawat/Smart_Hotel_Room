@@ -281,7 +281,7 @@ const GuestManagement = () => {
     <div className="space-y-6 p-4 bg-background min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Guest Management</h1>
+        {/* <h1 className="text-2xl font-bold">Guest Management</h1> */}
         <Button
           size="sm"
           variant="default"
@@ -453,7 +453,7 @@ const GuestManagement = () => {
           className="w-full p-2 border rounded"
           required
         />
-        <input
+        {/* <input
           type="email"
           placeholder="Email *"
           value={newGuestForm.email}
@@ -471,7 +471,7 @@ const GuestManagement = () => {
             setNewGuestForm({ ...newGuestForm, phone: e.target.value })
           }
           className="w-full p-2 border rounded"
-        />
+        /> */}
         <input
           type="text"
           placeholder="Room Number *"
@@ -500,7 +500,7 @@ const GuestManagement = () => {
           }
           className="w-full p-2 border rounded"
         />
-        <textarea
+        {/* <textarea
           placeholder="Address"
           value={newGuestForm.address}
           onChange={(e) =>
@@ -518,7 +518,7 @@ const GuestManagement = () => {
             })
           }
           className="w-full p-2 border rounded"
-        />
+        /> */}
 
         {/* Buttons */}
         <div className="flex justify-end gap-2 mt-2 sticky bottom-0 bg-background p-2">

@@ -7,9 +7,7 @@ import {
   Send, 
   Clock, 
   AlertTriangle,
-  CheckCircle,
-  Eye,
-  Trash2
+  CheckCircle
 } from 'lucide-react';
 
 interface Notification {
@@ -17,8 +15,8 @@ interface Notification {
   title: string;
   message: string;
   type: 'info' | 'warning' | 'urgent' | 'success';
-  target: 'all' | 'room' | 'guest';
-  targetId?: string;
+  target: 'all' | 'room' | 'guest' | 'floor' | 'multipleRooms';
+  targetId?: string | string[];
   priority: 'low' | 'medium' | 'high';
   status: 'sent' | 'delivered' | 'read' | 'failed';
   sentAt: string;
@@ -28,20 +26,17 @@ interface Notification {
 
 const Notifications = () => {
   const [notificationForm, setNotificationForm] = useState({
-    title: '',
     message: '',
-    type: 'info' as const,
-    target: 'all' as const,
-    targetId: '',
-    priority: 'medium' as const
+    target: 'all' as 'all' | 'room' | 'guest' | 'floor' | 'multipleRooms',
+    targetId: '' as string | string[],
+    priority: 'medium' as 'low' | 'medium' | 'high'
   });
-  const [showPreview, setShowPreview] = useState(false);
 
   const notifications: Notification[] = [
     {
       id: '1',
       title: 'Welcome Message',
-      message: 'Welcome to our hotel! We hope you enjoy your stay. If you need anything, please don\'t hesitate to contact the front desk.',
+      message: 'Welcome to our hotel! We hope you enjoy your stay.',
       type: 'info',
       target: 'all',
       priority: 'low',
@@ -52,7 +47,7 @@ const Notifications = () => {
     {
       id: '2',
       title: 'Maintenance Notice',
-      message: 'Scheduled maintenance in Room 312. We apologize for any inconvenience. Maintenance will be completed by 2 PM.',
+      message: 'Scheduled maintenance in Room 312. Completed by 2 PM.',
       type: 'warning',
       target: 'room',
       targetId: '312',
@@ -61,26 +56,6 @@ const Notifications = () => {
       sentAt: '2024-01-15T09:00:00Z',
       deliveredAt: '2024-01-15T09:01:00Z',
       readAt: '2024-01-15T09:15:00Z'
-    },
-    {
-      id: '3',
-      title: 'Emergency Alert',
-      message: 'Fire alarm test scheduled for tomorrow at 10 AM. Please do not be alarmed.',
-      type: 'urgent',
-      target: 'all',
-      priority: 'high',
-      status: 'sent',
-      sentAt: '2024-01-15T08:30:00Z'
-    },
-    {
-      id: '4',
-      title: 'Room Service Available',
-      message: 'Room service is now available until 11 PM. Call extension 1234 to place your order.',
-      type: 'success',
-      target: 'all',
-      priority: 'low',
-      status: 'failed',
-      sentAt: '2024-01-15T07:00:00Z'
     }
   ];
 
@@ -89,6 +64,11 @@ const Notifications = () => {
     { id: '102', number: '102', guest: 'Sarah Johnson' },
     { id: '201', number: '201', guest: 'Michael Brown' },
     { id: '202', number: '202', guest: 'Emily Davis' },
+  ];
+
+  const floors = [
+    { id: '1', name: '1st Floor', rooms: ['101', '102'] },
+    { id: '2', name: '2nd Floor', rooms: ['201', '202'] },
   ];
 
   const getTypeIcon = (type: string) => {
@@ -139,82 +119,49 @@ const Notifications = () => {
     }
   };
 
+  const formatTarget = (target: Notification['target'], targetId?: string | string[]) => {
+    if (target === 'all') return 'All Guests';
+    if (target === 'room') return `Room ${targetId}`;
+    if (target === 'guest') return `Guest: ${targetId}`;
+    if (target === 'floor') {
+      const floor = floors.find(f => f.id === targetId);
+      return `Floor: ${floor?.name || targetId}`;
+    }
+    if (target === 'multipleRooms') {
+      return `Rooms: ${(targetId as string[]).join(', ')}`;
+    }
+    return '';
+  };
+
   const handleSendNotification = () => {
-    // Handle sending notification
     console.log('Sending notification:', notificationForm);
+
+    if (notificationForm.target === 'multipleRooms' && Array.isArray(notificationForm.targetId)) {
+      console.log("Send to multiple rooms:", notificationForm.targetId);
+    } else if (notificationForm.target === 'floor') {
+      console.log("Send to floor:", notificationForm.targetId);
+    }
+
+    // Reset
     setNotificationForm({
-      title: '',
       message: '',
-      type: 'info',
       target: 'all',
       targetId: '',
       priority: 'medium'
     });
-    setShowPreview(false);
-  };
 
-  const NotificationPreview = () => (
-    <Card className="border-2 border-dashed border-primary/20">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          {getTypeIcon(notificationForm.type)}
-          <span>Preview</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <h4 className="font-semibold">{notificationForm.title || 'Notification Title'}</h4>
-          <p className="text-sm text-muted-foreground mt-1">
-            {notificationForm.message || 'Notification message will appear here...'}
-          </p>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {getPriorityBadge(notificationForm.priority)}
-            <Badge variant="outline">
-              {notificationForm.target === 'all' ? 'All Guests' : 
-               notificationForm.target === 'room' ? `Room ${notificationForm.targetId}` : 
-               `Guest ${notificationForm.targetId}`}
-            </Badge>
-          </div>
-          <div className={`${getTypeColor(notificationForm.type)}`}>
-            {getTypeIcon(notificationForm.type)}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+    const event = new CustomEvent('showToast', {
+      detail: { type: 'success', title: 'Notification Sent', message: 'Notification sent successfully!' }
+    });
+    window.dispatchEvent(event);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          {/* <h2 className="text-3xl font-bold text-foreground">Notifications</h2> */}
-          <p className="text-muted-foreground">Send and manage notifications to guests</p>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Send Notification Form */}
         <Card>
-          <CardHeader>
-            <CardTitle>Send Notification</CardTitle>
-            <CardDescription>Create and send notifications to guests</CardDescription>
-          </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Title</label>
-              <input
-                type="text"
-                value={notificationForm.title}
-                onChange={(e) => setNotificationForm({...notificationForm, title: e.target.value})}
-                placeholder="Enter notification title"
-                className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
-              />
-            </div>
-
             <div>
               <label className="text-sm font-medium">Message</label>
               <textarea
@@ -227,20 +174,6 @@ const Notifications = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Type</label>
-                <select
-                  value={notificationForm.type}
-                  onChange={(e) => setNotificationForm({...notificationForm, type: e.target.value as any})}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
-                >
-                  <option value="info">Info</option>
-                  <option value="warning">Warning</option>
-                  <option value="urgent">Urgent</option>
-                  <option value="success">Success</option>
-                </select>
-              </div>
-
               <div>
                 <label className="text-sm font-medium">Priority</label>
                 <select
@@ -265,69 +198,101 @@ const Notifications = () => {
                 <option value="all">All Guests</option>
                 <option value="room">Specific Room</option>
                 <option value="guest">Specific Guest</option>
+                <option value="floor">By Floor</option>
+                <option value="multipleRooms">Multiple Rooms</option>
               </select>
             </div>
 
-            {notificationForm.target !== 'all' && (
+            {notificationForm.target === 'room' && (
               <div>
-                <label className="text-sm font-medium">
-                  {notificationForm.target === 'room' ? 'Room Number' : 'Guest Name'}
-                </label>
+                <label className="text-sm font-medium">Room Number</label>
                 <select
-                  value={notificationForm.targetId}
+                  value={notificationForm.targetId as string}
                   onChange={(e) => setNotificationForm({...notificationForm, targetId: e.target.value})}
                   className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
                 >
-                  <option value="">Select {notificationForm.target === 'room' ? 'Room' : 'Guest'}</option>
-                  {notificationForm.target === 'room' 
-                    ? rooms.map(room => (
-                        <option key={room.id} value={room.number}>
-                          Room {room.number} - {room.guest}
-                        </option>
-                      ))
-                    : rooms.map(room => (
-                        <option key={room.id} value={room.guest}>
-                          {room.guest} - Room {room.number}
-                        </option>
-                      ))
-                  }
+                  <option value="">Select Room</option>
+                  {rooms.map(room => (
+                    <option key={room.id} value={room.number}>
+                      Room {room.number} - {room.guest}
+                    </option>
+                  ))}
                 </select>
+              </div>
+            )}
+
+            {notificationForm.target === 'guest' && (
+              <div>
+                <label className="text-sm font-medium">Guest Name</label>
+                <select
+                  value={notificationForm.targetId as string}
+                  onChange={(e) => setNotificationForm({...notificationForm, targetId: e.target.value})}
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                >
+                  <option value="">Select Guest</option>
+                  {rooms.map(room => (
+                    <option key={room.id} value={room.guest}>
+                      {room.guest} - Room {room.number}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {notificationForm.target === 'floor' && (
+              <div>
+                <label className="text-sm font-medium">Select Floor</label>
+                <select
+                  value={notificationForm.targetId as string}
+                  onChange={(e) => setNotificationForm({...notificationForm, targetId: e.target.value})}
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                >
+                  <option value="">Select Floor</option>
+                  {floors.map(floor => (
+                    <option key={floor.id} value={floor.id}>
+                      {floor.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {notificationForm.target === 'multipleRooms' && (
+              <div>
+                <label className="text-sm font-medium">Select Rooms</label>
+                <select
+                  multiple
+                  value={notificationForm.targetId as string[]}
+                  onChange={(e) => {
+                    const selected = Array.from(e.target.selectedOptions, option => option.value);
+                    setNotificationForm({...notificationForm, targetId: selected});
+                  }}
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background h-32"
+                >
+                  {rooms.map(room => (
+                    <option key={room.id} value={room.number}>
+                      Room {room.number} - {room.guest}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Hold CTRL (Windows) or CMD (Mac) to select multiple rooms.
+                </p>
               </div>
             )}
 
             <div className="flex space-x-2">
               <Button
-                variant="outline"
-                onClick={() => setShowPreview(!showPreview)}
+                onClick={handleSendNotification}
                 className="flex-1"
+                disabled={!notificationForm.message}
               >
-                <Eye className="mr-2 h-4 w-4" />
-                Preview
+                <Send className="mr-2 h-4 w-4" />
+                Send Notification
               </Button>
-                             <Button
-                 onClick={() => {
-                   handleSendNotification();
-                   const event = new CustomEvent('showToast', {
-                     detail: { type: 'success', title: 'Notification Sent', message: 'Notification sent successfully!' }
-                   });
-                   window.dispatchEvent(event);
-                 }}
-                 className="flex-1"
-                 disabled={!notificationForm.title || !notificationForm.message}
-               >
-                 <Send className="mr-2 h-4 w-4" />
-                 Send Notification
-               </Button>
             </div>
           </CardContent>
         </Card>
-
-        {/* Preview */}
-        {showPreview && (
-          <div>
-            <NotificationPreview />
-          </div>
-        )}
       </div>
 
       {/* Sent Notifications Timeline */}
@@ -356,6 +321,10 @@ const Notifications = () => {
                   <p className="text-sm text-muted-foreground mt-1">
                     {notification.message}
                   </p>
+
+                  <p className="text-xs mt-1 text-gray-500">
+                    Target: {formatTarget(notification.target, notification.targetId)}
+                  </p>
                   
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center space-x-4 text-xs text-muted-foreground">
@@ -369,15 +338,6 @@ const Notifications = () => {
                           <span>Delivered {new Date(notification.deliveredAt).toLocaleString()}</span>
                         </div>
                       )}
-                    </div>
-                    
-                    <div className="flex space-x-1">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 </div>

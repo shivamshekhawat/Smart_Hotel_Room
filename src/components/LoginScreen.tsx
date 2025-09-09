@@ -10,7 +10,7 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -59,10 +59,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     setTimeout(() => {
-      if (formData.username === 'admin' && formData.password === 'password') {
+      if (formData.email === 'admin@email.com' && formData.password === 'password') {
         const mockUser: User = {
-          username: formData.username,
-          email: `${formData.username}@hotel.com`,
+          username: 'Admin',
+          email: formData.email,
           role: 'Administrator',
           accessScope: 'full',
         };
@@ -97,19 +97,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="username" className="text-sm font-medium text-gray-700">
-                  Username
+                <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email
                 </label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
-                    id="username"
-                    name="username"
-                    type="text"
+                    id="email"
+                    name="email"
+                    type="email"
                     required
-                    value={formData.username}
+                    value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="Enter your username"
+                    placeholder="Enter your email"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   />
                 </div>
@@ -177,7 +177,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-600">
-                Demo credentials: <span className="font-medium">admin / password</span>
+                Demo credentials: <span className="font-medium">admin@email.com / password</span>
               </p>
             </div>
           </CardContent>

@@ -29,7 +29,6 @@ interface RoomDetailsModalProps {
     type: string
     floor: number
     status: "available" | "occupied" | "maintenance" | "cleaning"
-    capacity: number
     guestName?: string
     guestEmail?: string
     guestPhone?: string

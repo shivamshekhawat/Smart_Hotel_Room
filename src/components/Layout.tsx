@@ -13,7 +13,8 @@ import {
   Moon,
   ChevronLeft,
   ChevronRight,
-  User as UserIcon
+  User as UserIcon,
+  Send
 } from 'lucide-react';
 import Toast from './ui/toast';
 
@@ -59,12 +60,17 @@ const Layout: React.FC<LayoutProps> = ({ currentUser, onLogout }) => {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Rooms Management', href: '/rooms', icon: Bed },
     { name: 'Guest Management', href: '/guests', icon: Users },
+    { name: 'Send Notification', href: '/notifications', icon: Send },
     { name: 'Configure Display', href: '/configure-display', icon: Settings },
     { name: 'User Management', href: '/users', icon: UserIcon },
     { name: 'Feedback & Reviews', href: '/feedback', icon: MessageSquare },
   ];
 
   const sidebarWidth = sidebarCollapsed ? 72 : 260;
+  const pageTitle =
+    location.pathname === '/settings'
+      ? 'Setting'
+      : navigation.find((item) => item.href === location.pathname)?.name || 'Dashboard';
 
   return (
     <div
@@ -186,7 +192,7 @@ const Layout: React.FC<LayoutProps> = ({ currentUser, onLogout }) => {
                   : 'text-blue-400 dark:text-blue-300 group-hover:text-sky-600 dark:group-hover:text-sky-400'
               }`}
             />
-            {!sidebarCollapsed && <span>Settings</span>}
+            {!sidebarCollapsed && <span>Setting</span>}
           </Link>
         </div>
       </aside>
@@ -230,10 +236,19 @@ const Layout: React.FC<LayoutProps> = ({ currentUser, onLogout }) => {
                 </svg>
               </Button>
               <h1 className="text-2xl lg:text-3xl font-extrabold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
-                {navigation.find((item) => item.href === location.pathname)?.name || 'Dashboard'}
+                {pageTitle}
               </h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-5">
+              {/* <Link
+                to="/notifications"
+                className="hidden sm:inline-flex"
+              >
+                <Button className="gap-2">
+                  <Send className="h-4 w-4" />
+                  Send Notification
+                </Button>
+              </Link> */}
               <Button
                 variant="ghost"
                 size="icon"

@@ -43,7 +43,7 @@ interface RoomDetailsModalProps {
     type: string
     floor: number
     status: "available" | "occupied" | "maintenance" | "cleaning"
-    capacity: number
+    capacity?: number
     guestName?: string
     guestEmail?: string
     guestPhone?: string
@@ -139,7 +139,7 @@ const RoomsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<RoomStatus | "all">("all")
   const [floorFilter, setFloorFilter] = useState<number | "all">("all")
-  const [sortBy, setSortBy] = useState<"number" | "capacity">("number")
+  const [sortBy, setSortBy] = useState<"number">("number")
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
 
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
@@ -152,7 +152,6 @@ const RoomsManagement: React.FC = () => {
     type: "standard",
     floor: 1,
     status: "available",
-    capacity: 2,
   })
 
   const filteredRooms = useMemo(() => {
@@ -169,15 +168,11 @@ const RoomsManagement: React.FC = () => {
         return matchesSearch && matchesStatus && matchesFloor
       })
       .sort((a, b) => {
-        if (sortBy === "number") {
-          return sortOrder === "asc"
-            ? Number.parseInt(a.number) - Number.parseInt(b.number)
-            : Number.parseInt(b.number) - Number.parseInt(a.number)
-        } else {
-          return sortOrder === "asc" ? a.capacity - b.capacity : b.capacity - a.capacity
-        }
+        return sortOrder === "asc"
+          ? Number.parseInt(a.number) - Number.parseInt(b.number)
+          : Number.parseInt(b.number) - Number.parseInt(a.number)
       })
-  }, [rooms, searchTerm, statusFilter, floorFilter, sortBy, sortOrder])
+  }, [rooms, searchTerm, statusFilter, floorFilter, sortOrder])
 
   const handleRoomClick = (room: RoomDetailsModalProps["room"]) => {
     setSelectedRoom(room)
@@ -190,16 +185,10 @@ const RoomsManagement: React.FC = () => {
   }
 
   const toggleSortOrder = (field: typeof sortBy) => {
-    if (sortBy === field) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
-    } else {
-      setSortBy(field)
-      setSortOrder("asc")
-    }
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
   }
 
   const getSortIcon = (field: typeof sortBy) => {
-    if (sortBy !== field) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-50" />
     return sortOrder === "asc" ? (
       <ArrowUpDown className="ml-1 h-3 w-3 rotate-180" />
     ) : (
@@ -218,7 +207,7 @@ const RoomsManagement: React.FC = () => {
 
     setRooms(prev => [...prev, { ...newRoom, id: Date.now().toString() }]);
     setShowAddRoomModal(false);
-    setNewRoom({ id: (Date.now()).toString(), number: "", type: "standard", floor: 1, status: "available", capacity: 2 });
+    setNewRoom({ id: (Date.now()).toString(), number: "", type: "standard", floor: 1, status: "available" });
     
     const event = new CustomEvent('showToast', {
       detail: { type: 'success', title: 'Room Added', message: `Room ${newRoom.number} has been successfully added` }
@@ -243,7 +232,7 @@ const RoomsManagement: React.FC = () => {
 
     setRooms(updatedRooms);
     setShowUpdateRoomModal(false);
-    setNewRoom({ id: (Date.now()).toString(), number: "", type: "standard", floor: 1, status: "available", capacity: 2 });
+    setNewRoom({ id: (Date.now()).toString(), number: "", type: "standard", floor: 1, status: "available" });
     
     const event = new CustomEvent('showToast', {
       detail: { type: 'success', title: 'Room Updated', message: `Room ${newRoom.number} has been successfully updated` }
@@ -439,16 +428,7 @@ const RoomsManagement: React.FC = () => {
               </div>
 
               {/* Room Details */}
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center text-blue-700 dark:text-blue-400 mb-1">
-                    <Users className="h-4 w-4 mr-1" />
-                    <span className="text-xs font-semibold uppercase">Capacity</span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {room.capacity} {room.capacity === 1 ? "Guest" : "Guests"}
-                  </p>
-                </div>
+              <div className="grid grid-cols-1 gap-3 mb-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
                   <div className="flex items-center text-blue-700 dark:text-blue-400 mb-1">
                     <Bed className="h-4 w-4 mr-1" />
@@ -500,16 +480,19 @@ const RoomsManagement: React.FC = () => {
                   View Details
                 </Button>
                 <Button
-                  variant="pill"
-                  size="sm"
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold transition-all duration-200"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenUpdateModal(room);
-                  }}
-                >
-                  Edit
-                </Button>
+  // variant="pill"
+  size="sm"
+  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold transition-all duration-200
+             focus:outline-none focus:ring-0 active:bg-blue-100"
+  onClick={(e) => {
+    e.stopPropagation();
+    handleOpenUpdateModal(room);
+  }}
+>
+  Edit
+</Button>
+
+
               </div>
             </div>
 
@@ -584,10 +567,8 @@ const RoomsManagement: React.FC = () => {
                   <option value="cleaning">Cleaning</option>
                 </select>
               </div>
-              <div className="md:col-span-2">
-                <label className="text-sm font-medium">Capacity</label>
-                <input type="number" className="w-full mt-1 px-3 py-2 border rounded-md bg-background" value={newRoom.capacity} onChange={e => setNewRoom({ ...newRoom, capacity: Number(e.target.value) })} />
-              </div>
+              
+
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <Button 
@@ -661,15 +642,8 @@ const RoomsManagement: React.FC = () => {
                   <option value="cleaning">Cleaning</option>
                 </select>
               </div>
-              <div className="md:col-span-2">
-                <label className="text-sm font-medium">Capacity</label>
-                <input 
-                  type="number" 
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background" 
-                  value={newRoom.capacity} 
-                  onChange={e => setNewRoom({ ...newRoom, capacity: Number(e.target.value) })} 
-                />
-              </div>
+              
+
             </div>
             
             {/* Current Room Info */}

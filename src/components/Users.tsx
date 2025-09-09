@@ -1,251 +1,158 @@
-import React, { useState } from 'react';
-import { User } from '../App';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { UserPlus, Edit, Trash2, Shield } from 'lucide-react';
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Edit, Trash2 } from "lucide-react";
 
-const roleColors: Record<string, string> = {
-  Admin: ' text-blue-600',
-  Reception: ' text-blue-600',
-  Housekeeping: ' text-blue-600',
-};
+// User type definition
+interface User {
+  username: string;
+  email: string;
+  role: "Admin" | "Reception" | "Housekeeping";
+  accessScope: string;
+  loginHistory?: string[];
+  failedAttempts?: number;
+  locked?: boolean;
+}
 
-const roleOptions = ['Admin', 'Reception', 'Housekeeping'];
-
-const Users: React.FC = () => {
+export default function Users() {
   const [users, setUsers] = useState<User[]>([
     {
-      username: 'admin',
-      email: 'admin@hotel.com',
-      role: 'Admin',
-      accessScope: 'All',
+      username: "admin",
+      email: "admin@hotel.com",
+      role: "Admin",
+      accessScope: "All",
+      loginHistory: ["2025-09-09 08:45 AM", "2025-09-08 09:10 PM"],
+      failedAttempts: 0,
+      locked: false,
     },
     {
-      username: 'reception01',
-      email: 'reception@hotel.com',
-      role: 'Reception',
-      accessScope: 'All',
+      username: "reception01",
+      email: "reception@hotel.com",
+      role: "Reception",
+      accessScope: "All",
+      loginHistory: ["2025-09-09 07:30 AM"],
+      failedAttempts: 2,
+      locked: false,
     },
     {
-      username: 'housekeeping_f2',
-      email: 'housekeeping.f2@hotel.com',
-      role: 'Housekeeping',
-      accessScope: 'Floor 2 only',
+      username: "housekeeping_f2",
+      email: "housekeeping.f2@hotel.com",
+      role: "Housekeeping",
+      accessScope: "Floor 2 only",
+      loginHistory: ["2025-09-07 06:10 PM"],
+      failedAttempts: 5,
+      locked: true,
     },
   ]);
 
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [newUser, setNewUser] = useState<User>({ username: '', email: '', role: 'Reception', accessScope: '' });
-  const [formError, setFormError] = useState<string | null>(null);
-  const isFormInvalid = !!formError;
-
-  const getRoleBadge = (role: string) => (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>{role}</span>
-  );
-
-  const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setShowAddModal(true);
+  // Unlock user handler
+  const handleUnlockUser = (username: string) => {
+    setUsers(
+      users.map((user) =>
+        user.username === username ? { ...user, locked: false, failedAttempts: 0 } : user
+      )
+    );
   };
 
+  // Delete user
   const handleDeleteUser = (username: string) => {
-    // In a real app, this would show a confirmation dialog
-    setUsers(users.filter(user => user.username !== username));
+    setUsers(users.filter((u) => u.username !== username));
   };
 
-  const handleAddUser = () => {
-    setEditingUser(null);
-    setNewUser({ username: '', email: '', role: 'Reception', accessScope: '' });
-    setShowAddModal(true);
-  };
-
-  // Set form values when editing a user
-  React.useEffect(() => {
-    if (editingUser) {
-      setNewUser({ ...editingUser });
-    }
-  }, [editingUser]);
-
-  const handleAddUserSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Username should not exceed 12 words
-    // const usernameWordCount = newUser.username.trim().split(/\s+/).filter(Boolean).length;
-    // if (usernameWordCount > 12) {
-    //   setFormError('Username must not exceed 12 words.');
-    //   return;
-    // }
-    const wordCount = newUser.username.trim().split(/\s+/).filter(Boolean).length;
-    if (wordCount > 12) {
-      setFormError('Username must not exceed 12 words.');
-      return;
-    }
-
-    setFormError(null);
-    if (editingUser) {
-      // Update existing user
-      setUsers(users.map(user => 
-        user.username === editingUser.username ? { ...newUser } : user
-      ));
-      setEditingUser(null);
-    } else {
-      // Add new user
-      setUsers([...users, newUser]);
-    }
-    setShowAddModal(false);
-    setNewUser({ username: '', email: '', role: 'Reception', accessScope: '' });
+  // Edit user (placeholder)
+  const handleEditUser = (user: User) => {
+    alert(`Editing ${user.username}`);
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-      {/* Page Header */}
-      <div className="mx-auto w-full max-w-6xl">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          {/* <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">User Management</h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage staff roles, access scopes, and accounts</p>
-          </div> */}
-          <div>
-            <Button onClick={handleAddUser} className="flex items-center gap-2" variant="default">
-              <UserPlus className="h-5 w-5" /> Add User
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto w-full max-w-6xl">
-      <Card className="mb-8 border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+    <div className="space-y-6">
+      {/* Users Table */}
+      <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">Users</CardTitle>
-          <CardDescription>
-            Manage system access, roles, and permissions for hotel staff.
-          </CardDescription>
+          {/* <CardTitle>User Management</CardTitle> */}
+          <CardDescription>Manage system users, roles, and access levels</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-slate-700/50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Username</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Access Scope</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-slate-700/50">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-medium">Username</th>
+                <th className="px-4 py-2 text-left text-sm font-medium">Email</th>
+                <th className="px-4 py-2 text-left text-sm font-medium">Role</th>
+                <th className="px-4 py-2 text-left text-sm font-medium">Access</th>
+                <th className="px-4 py-2 text-left text-sm font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {users.map((user, idx) => (
+                <tr key={idx}>
+                  <td className="px-4 py-2">{user.username}</td>
+                  <td className="px-4 py-2">{user.email}</td>
+                  <td className="px-4 py-2">{user.role}</td>
+                  <td className="px-4 py-2">{user.accessScope}</td>
+                  <td className="px-4 py-2 flex gap-2">
+                    {user.role !== "Admin" && (
+                      <>
+                        <Button size="icon" variant="ghost" onClick={() => handleEditUser(user)}>
+                          <Edit className="h-5 w-5 text-blue-500" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDeleteUser(user.username)}
+                        >
+                          <Trash2 className="h-5 w-5 text-red-500" />
+                        </Button>
+                      </>
+                    )}
+                    {user.locked && (
+                      <Button size="sm" variant="destructive" onClick={() => handleUnlockUser(user.username)}>
+                        Unlock
+                      </Button>
+                    )}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {users.map((user, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{user.username}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{user.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{getRoleBadge(user.role)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{user.accessScope}</td>
-                    <td className="px-6 py-4 whitespace-nowrap flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => handleEditUser(user)} title="Edit user">
-                        <Edit className="h-5 w-5 text-blue-500" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteUser(user.username)} title="Delete user">
-                        <Trash2 className="h-5 w-5 text-red-500" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </CardContent>
       </Card>
-      </div>
-      {/* Add User Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-6 sm:p-8 w-full max-w-md relative">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl"
-              onClick={() => setShowAddModal(false)}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4">{editingUser ? 'Edit User' : 'Add New User'}</h2>
-            <form onSubmit={handleAddUserSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Username</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  value={newUser.username}
-                  onChange={e => {
-                    const value = e.target.value;
-                    const words = value.trim().split(/\s+/).filter(Boolean);
-                    if (words.length > 12) {
-                      const limited = words.slice(0, 12).join(' ');
-                      setNewUser({ ...newUser, username: limited });
-                      setFormError('Username must not exceed 12 words.');
-                    } else {
-                      setNewUser({ ...newUser, username: value });
-                      if (formError) setFormError(null);
-                    }
-                  }}
-                  disabled={!!editingUser}
-                  required
-                />
-                {formError && (
-                  <p className="mt-1 text-sm text-red-600">{formError}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-  type="email"
-  name="email"
-  className="w-full px-3 py-2 border rounded-md bg-background appearance-none"
-  autoComplete="off"
-  value={newUser.email}
-  onChange={e => setNewUser({ ...newUser, email: e.target.value })}
-  required
-/>
 
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Role</label>
-                <select
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  value={newUser.role}
-                  onChange={e => setNewUser({ ...newUser, role: e.target.value })}
-                  required
-                >
-                  {roleOptions.map(role => (
-                    <option key={role} value={role}>{role}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Access Scope</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-md bg-background"
-                  value={newUser.accessScope}
-                  onChange={e => setNewUser({ ...newUser, accessScope: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <Button type="button" variant="ghost" onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" variant="default" disabled={isFormInvalid}>
-                  {editingUser ? 'Update User' : 'Add User'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Login History + Lockout Status */}
+      <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800">
+        <CardHeader>
+          <CardTitle>User Login History & Status</CardTitle>
+          <CardDescription>Track login activity and account lockouts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-slate-700/50">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-medium">Username</th>
+                <th className="px-4 py-2 text-left text-sm font-medium">Last Login</th>
+                <th className="px-4 py-2 text-left text-sm font-medium">Failed Attempts</th>
+                <th className="px-4 py-2 text-left text-sm font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {users.map((user, idx) => (
+                <tr key={idx}>
+                  <td className="px-4 py-2">{user.username}</td>
+                  <td className="px-4 py-2">{user.loginHistory?.[0] || "Never"}</td>
+                  <td className="px-4 py-2">{user.failedAttempts || 0}</td>
+                  <td className="px-4 py-2">
+                    {user.locked ? (
+                      <span className="text-red-500 font-semibold">Locked</span>
+                    ) : (
+                      <span className="text-green-500">Active</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default Users;
-
+}

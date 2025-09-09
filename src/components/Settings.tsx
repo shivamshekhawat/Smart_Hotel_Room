@@ -1,14 +1,12 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { 
   Save, 
   User, 
-  Palette,
-  LogOut
+  Palette
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import React from 'react';
 import { useTheme } from '../lib/ThemeContext';
 
 const Settings = () => {
@@ -72,14 +70,14 @@ const Settings = () => {
 
   return (
     <div className="space-y-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <div>
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Settings
+            Setting
           </h2>
           <p className="text-muted-foreground mt-2 text-lg">Manage your account and preferences</p>
         </div>
-      </div>
+      </div> */}
 
       <div className="flex space-x-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-2 rounded-xl border border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => (

@@ -1,4 +1,5 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -7,137 +8,49 @@ import {
   CardTitle,
 } from "./ui/card";
 import { Button } from "./ui/button";
-import {
-  Users,
-  Bed,
-  Bell,
-  Calendar,
-  Clock,
-  Settings,
-} from "lucide-react";
+import { Users, Bed, Bell, Clock, Settings } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // Mock data for guests
-  const guests = [
-    {
-      id: 1,
-      name: "John Doe",
-      room: "101",
-      checkIn: "2023-05-15",
-      checkOut: "2023-05-20",
-      status: "checked-in",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      room: "205",
-      checkIn: "2023-05-16",
-      checkOut: "2023-05-18",
-      status: "checked-in",
-    },
-    {
-      id: 3,
-      name: "Robert Johnson",
-      room: "312",
-      checkIn: "2023-05-17",
-      checkOut: "2023-05-19",
-      status: "checked-out",
-    },
-    {
-      id: 4,
-      name: "Emily Davis",
-      room: "104",
-      checkIn: "2023-05-18",
-      checkOut: "2023-05-22",
-      status: "checked-in",
-    },
-    {
-      id: 5,
-      name: "Michael Brown",
-      room: "201",
-      checkIn: "2023-05-19",
-      checkOut: "2023-05-21",
-      status: "checked-in",
-    },
-  ];
-
-  // Mock data for rooms
-  const rooms = [
-    { number: 101, status: 'available', type: 'Deluxe' },
-    { number: 102, status: 'occupied', type: 'Standard' },
-    { number: 103, status: 'available', type: 'Suite' },
-    { number: 104, status: 'maintenance', type: 'Presidential' },
-    { number: 105, status: 'available', type: 'Standard' },
-    { number: 106, status: 'occupied', type: 'Deluxe' },
-    { number: 107, status: 'available', type: 'Suite' },
-    { number: 108, status: 'available', type: 'Standard' },
-    { number: 109, status: 'occupied', type: 'Presidential' },
-    { number: 110, status: 'available', type: 'Deluxe' },
-    { number: 201, status: 'maintenance', type: 'Standard' },
-    { number: 202, status: 'available', type: 'Suite' },
-    { number: 203, status: 'occupied', type: 'Deluxe' },
-    { number: 204, status: 'available', type: 'Standard' },
-    { number: 205, status: 'occupied', type: 'Presidential' },
-    { number: 206, status: 'available', type: 'Deluxe' },
-    { number: 207, status: 'maintenance', type: 'Standard' },
-    { number: 208, status: 'available', type: 'Suite' },
-    { number: 209, status: 'occupied', type: 'Deluxe' },
-    { number: 210, status: 'available', type: 'Standard' },
-    { number: 301, status: 'available', type: 'Presidential' },
-    { number: 302, status: 'occupied', type: 'Deluxe' },
-    { number: 303, status: 'available', type: 'Standard' },
-    { number: 304, status: 'maintenance', type: 'Suite' },
-    { number: 305, status: 'available', type: 'Deluxe' },
+  // Live Room Status mock data
+  const liveRoomStatus = [
+    { room: "101", floor: "1", guest: "Guest", mode: "Idle", lastAction: "11:10 AM", tabletStatus: "Online" },
+    { room: "102", floor: "1", guest: "Jane Smith", mode: "Do Not Disturb", lastAction: "10:45 AM", tabletStatus: "Online" },
+    { room: "103", floor: "1", guest: "John Doe", mode: "Cleaning", lastAction: "09:30 AM", tabletStatus: "Offline" },
+    { room: "108", floor: "1", guest: "Diana Green", mode: "Cleaning", lastAction: "08:15 AM", tabletStatus: "Online" },
+    { room: "107", floor: "1", guest: "Charlie Black", mode: "Do Not Disturb", lastAction: "07:30 AM", tabletStatus: "Online" },
+    { room: "105", floor: "1", guest: "Alice Brown", mode: "Occupied", lastAction: "06:45 AM", tabletStatus: "Online" },
+    { room: "104", floor: "1", guest: "Guest", mode: "Idle", lastAction: "05:20 AM", tabletStatus: "Online" },
+    { room: "106", floor: "1", guest: "Bob White", mode: "Idle", lastAction: "04:10 AM", tabletStatus: "Offline" },
   ];
 
   const notifications = [
-    {
-      id: 1,
-      type: "checkin",
-      message: "New guest checked in to Room 205",
-      time: "2 minutes ago",
-    },
-    {
-      id: 2,
-      type: "maintenance",
-      message: "Maintenance request for Room 312",
-      time: "15 minutes ago",
-    },
-    {
-      id: 3,
-      type: "checkout",
-      message: "Guest checked out from Room 108",
-      time: "1 hour ago",
-    },
-    {
-      id: 4,
-      type: "review",
-      message: "New 5-star review received",
-      time: "2 hours ago",
-    },
+    { id: 1, type: "checkin", message: "New guest checked in to Room 205", time: "2 minutes ago" },
+    { id: 2, type: "maintenance", message: "Maintenance request for Room 312", time: "15 minutes ago" },
+    { id: 3, type: "checkout", message: "Guest checked out from Room 108", time: "1 hour ago" },
+    { id: 4, type: "review", message: "New 5-star review received", time: "2 hours ago" },
   ];
 
-  // Live Room Status mock data - sorted by lastAction time (most recent first)
-  const liveRoomStatus = [
-    { room: '101', guest: 'Guest', mode: 'Idle', lastAction: '11:10 AM', tabletStatus: 'Online' },
-    { room: '102', guest: 'Jane Smith', mode: 'Do Not Disturb', lastAction: '10:45 AM', tabletStatus: 'Online' },
-    { room: '103', guest: 'John Doe', mode: 'Cleaning', lastAction: '09:30 AM', tabletStatus: 'Offline' },
-    { room: '108', guest: 'Diana Green', mode: 'Cleaning', lastAction: '08:15 AM', tabletStatus: 'Online' },
-    { room: '107', guest: 'Charlie Black', mode: 'Do Not Disturb', lastAction: '07:30 AM', tabletStatus: 'Online' },
-    { room: '105', guest: 'Alice Brown', mode: 'Occupied', lastAction: '06:45 AM', tabletStatus: 'Online' },
-    { room: '104', guest: 'Guest', mode: 'Idle', lastAction: '05:20 AM', tabletStatus: 'Online' },
-    { room: '106', guest: 'Bob White', mode: 'Idle', lastAction: '04:10 AM', tabletStatus: 'Offline' },
-  ];
-
-  // Dashboard summary cards data (matching the image)
   const dashboardStats = [
-    { value: '135', label: 'Total Rooms', href: '/rooms' },
-    { value: '6', label: 'Clean Requests', href: '/clean-requests' },
-    { value: '3', label: 'Technical Issues', href: '/technical-issues' },
-    { value: '4.2', label: 'Guest Feedback', href: '/feedback' },
+    { value: "135", label: "Total Rooms", href: "/rooms" },
+    { value: "6", label: "Clean Requests", href: "/clean-requests" },
+    { value: "3", label: "Technical Issues", href: "/technical-issues" },
+    { value: "4.2", label: "Guest Feedback", href: "/feedback" },
   ];
+
+  const [filters, setFilters] = useState({ floor: "", room: "", status: "" });
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const filteredRooms = liveRoomStatus.filter((r) => {
+    const byFloor = filters.floor ? r.floor === filters.floor : true;
+    const byRoom = filters.room ? r.room === filters.room : true;
+    const byStatus = filters.status ? r.mode === filters.status : true;
+    return byFloor && byRoom && byStatus;
+  });
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -154,191 +67,176 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-4 md:space-y-8 p-3 sm:p-4 md:p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-      {/* Page Header */}
-
-
-      {/* Live Room Status Section */}
-      <div className="mx-auto w-full max-w-7xl grid grid-cols-1 gap-4 md:gap-6 lg:gap-8">
-        <Card className="border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm  transition-all duration-300">
+    <div className="space-y-6 p-4 md:p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
+      {/* Live Room Status */}
+      <div className="mx-auto w-full max-w-7xl grid grid-cols-1 gap-6">
+        <Card className="border border-gray-100 dark:border-gray-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
               <div>
-                <CardTitle className="text-xl font-semibold">
-                  Live Room Status
-                </CardTitle>
+                <CardTitle className="text-xl font-semibold">Live Room Status</CardTitle>
                 <CardDescription>Current status of all rooms</CardDescription>
               </div>
-              <div className="hidden sm:flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => navigate('/rooms')}
-                  // variant="pill" 
-                  className="bg-blue-500 text-white border-blue-500 hover:bg-blue-500 hover:text-white focus:bg-blue-500"
-                >Manage Rooms</Button>
-                <Button size="sm" onClick={() => navigate('/guests')}
-                  className="bg-blue-500 text-white border-blue-500 hover:bg-blue-500 hover:text-white focus:bg-blue-500"
-                >Manage Guests</Button>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-2">
+                <select
+                  className="text-sm border rounded-lg px-2 py-1 bg-white dark:bg-slate-700 dark:text-white"
+                  value={filters.floor}
+                  onChange={(e) => handleFilterChange("floor", e.target.value)}
+                >
+                  <option value="">All Floors</option>
+                  {liveRoomStatus
+                    .map((r) => r.floor)
+                    .filter((value, index, self) => self.indexOf(value) === index)
+                    .map((floor) => (
+                    <option key={floor} value={floor}>
+                      Floor {floor}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  className="text-sm border rounded-lg px-2 py-1 bg-white dark:bg-slate-700 dark:text-white"
+                  value={filters.room}
+                  onChange={(e) => handleFilterChange("room", e.target.value)}
+                >
+                  <option value="">All Rooms</option>
+                  {liveRoomStatus
+                    .map((r) => r.room)
+                    .filter((value, index, self) => self.indexOf(value) === index)
+                    .map((room) => (
+                    <option key={room} value={room}>
+                      Room {room}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  className="text-sm border rounded-lg px-2 py-1 bg-white dark:bg-slate-700 dark:text-white"
+                  value={filters.status}
+                  onChange={(e) => handleFilterChange("status", e.target.value)}
+                >
+                  <option value="">All Status</option>
+                  {liveRoomStatus
+                    .map((r) => r.mode)
+                    .filter((value, index, self) => self.indexOf(value) === index)
+                    .map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
-            <div className="overflow-x-auto -mx-2 sm:-mx-3 md:mx-0">
-              <div className="h-48 overflow-y-auto text-xs sm:text-sm md:text-base scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
-                <style>{`
-                  /* Custom scrollbar styling */
-                  .scrollbar-thin::-webkit-scrollbar {
-                    width: 6px;
-                    height: 6px;
-                  }
-                  .scrollbar-thin::-webkit-scrollbar-track {
-                    background: #f1f5f9;
-                    border-radius: 3px;
-                  }
-                  .scrollbar-thin::-webkit-scrollbar-thumb {
-                    background: #cbd5e1;
-                    border-radius: 3px;
-                  }
-                  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-                    background: #94a3b8;
-                  }
-                  .dark .scrollbar-thin::-webkit-scrollbar-track {
-                    background: #1e293b;
-                  }
-                  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-                    background: #475569;
-                  }
-                  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-                    background: #64748b;
-                  }
-                  
-                  @media (max-width: 640px) {
-                    table {
-                      display: block;
-                      width: 100%;
-                      overflow-x: auto;
-                      -webkit-overflow-scrolling: touch;
-                    }
-                    th, td {
-                      padding: 0.5rem 0.25rem;
-                    }
-                    th:first-child, td:first-child {
-                      position: sticky;
-                      left: 0;
-                      background: inherit;
-                      z-index: 1;
-                    }
-                  }
-                `}</style>
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg overflow-hidden">
-                  <thead className="bg-gray-50/80 dark:bg-slate-700/50 backdrop-blur sticky top-0 z-10 whitespace-nowrap">
+            <div className="overflow-x-auto">
+              <div className="h-56 overflow-y-auto text-sm scrollbar-thin">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-slate-700 sticky top-0">
                     <tr>
-                      <th className="px-2 sm:px-3 py-2 text-left text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Room</th>
-                      <th className="px-2 sm:px-3 py-2 text-left text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Guest</th>
-                      <th className="px-2 sm:px-3 py-2 text-left text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mode</th>
-                      <th className="px-2 sm:px-3 py-2 text-left text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Action</th>
-                      <th className="px-2 sm:px-3 py-2 text-left text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Room</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Guest</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Live Room Status</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Last Action</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white/70 dark:bg-slate-800/70 divide-y divide-gray-200 dark:divide-gray-700 whitespace-nowrap">
-                    {liveRoomStatus.map((room, idx) => (
-                      <tr key={idx} className="">
-                        <td className="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-900 dark:text-white">{room.room}</td>
-                        <td className="px-2 sm:px-3 py-2 text-xs sm:text-sm text-gray-500 dark:text-gray-300">{room.guest}</td>
-                        <td className="px-2 sm:px-3 py-2 text-xs sm:text-sm text-gray-500 dark:text-gray-300">{room.mode}</td>
-                        <td className="px-2 sm:px-3 py-2 text-xs sm:text-sm text-gray-500 dark:text-gray-300">{room.lastAction || '—'}</td>
-                        <td className="px-2 sm:px-3 py-2 whitespace-nowrap">
-                          <span className={`px-1.5 py-0.5 inline-flex text-[10px] sm:text-xs leading-4 font-semibold  ${room.tabletStatus === 'Online' ? ' text-green-800' : 'text-red-500'}`}>
-                            {room.tabletStatus === 'Online' ? 'Online' : 'Offline'}
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredRooms.map((room, idx) => (
+                      <tr key={idx}>
+                        <td className="px-3 py-2 font-medium">{room.room}</td>
+                        <td className="px-3 py-2 text-gray-500 dark:text-gray-300">{room.guest}</td>
+                        <td className="px-3 py-2 text-gray-500 dark:text-gray-300">{room.mode}</td>
+                        <td className="px-3 py-2 text-gray-500 dark:text-gray-300">{room.lastAction}</td>
+                        <td className="px-3 py-2">
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                              room.tabletStatus === "Online" ? "text-green-600" : "text-red-500"
+                            }`}
+                          >
+                            {room.tabletStatus}
                           </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Dashboard Summary Cards */}
-      <div className="mx-auto w-full max-w-7xl my-3 sm:my-4 md:my-6">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          {dashboardStats.map((stat, idx) => (
-            <Card key={idx} onClick={() => navigate(stat.href)} className="cursor-pointer p-3 sm:p-4 md:p-5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 ">
-              <div className="flex flex-col items-center justify-center">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">{stat.value}</span>
-                <span className="text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-300 text-center">{stat.label}</span>
-              </div>
-            </Card>
-          ))}
-        </div>
+      {/* Summary Cards */}
+      <div className="mx-auto w-full max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-4">
+        {dashboardStats.map((stat, idx) => (
+          <Card
+            key={idx}
+            onClick={() => navigate(stat.href)}
+            className="cursor-pointer p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+          >
+            <div className="flex flex-col items-center">
+              <span className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-300">{stat.label}</span>
+            </div>
+          </Card>
+        ))}
       </div>
 
-      {/* Dashboard Quick Actions (below summary cards) */}
+      {/* Quick Actions */}
       <div className="flex flex-wrap gap-3">
-  <Button
-    className="flex-1 flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl whitespace-nowrap"
-    variant="outline"
-    onClick={() => navigate('/guests')}
-  >
-    <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
-    Assign Guest
-  </Button>
+        <Button
+          className="flex-1 flex items-center justify-center sm:justify-start h-12 text-sm font-medium border bg-white dark:bg-slate-800 rounded-xl"
+          variant="outline"
+          onClick={() => navigate("/guests")}
+        >
+          <Users className="h-4 w-4 mr-2" />
+          Assign Guest
+        </Button>
 
-  <Button
-    className="flex-1 flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl whitespace-nowrap"
-    variant="outline"
-    onClick={() => navigate('/notifications')}
-  >
-    <Bell className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
-    Send Notification
-  </Button>
+        <Button
+          className="flex-1 flex items-center justify-center sm:justify-start h-12 text-sm font-medium border bg-white dark:bg-slate-800 rounded-xl"
+          variant="outline"
+          onClick={() => navigate("/notifications")}
+        >
+          <Bell className="h-4 w-4 mr-2" />
+          Send Notification
+        </Button>
 
-  <Button
-    className="flex-1 flex items-center justify-center sm:justify-start h-12 sm:h-14 text-xs sm:text-sm md:text-base font-medium border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-slate-800/90 transition-colors p-2 sm:p-3 text-center sm:text-left rounded-xl whitespace-nowrap"
-    variant="outline"
-    onClick={() => navigate('/configure-display')}
-  >
-    <Settings className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-current" />
-    Configure Display
-  </Button>
-</div>
+        <Button
+          className="flex-1 flex items-center justify-center sm:justify-start h-12 text-sm font-medium border bg-white dark:bg-slate-800 rounded-xl"
+          variant="outline"
+          onClick={() => navigate("/configure-display")}
+        >
+          <Settings className="h-4 w-4 mr-2" />
+          Configure Display
+        </Button>
+      </div>
 
-
-
-      {/* Notifications Section */}
-      <div className="mx-auto w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        <Card className="lg:col-span-2 border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm  transition-all duration-300">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold">
-              Recent Activity
-            </CardTitle>
-            <CardDescription className="text-base">
-              Latest hotel activities and updates
-            </CardDescription>
+      {/* Notifications */}
+      <div className="mx-auto w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 border bg-white dark:bg-slate-800">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">Recent Activity</CardTitle>
+            <CardDescription>Latest hotel activities and updates</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 sm:space-y-4 md:space-y-6">
-              {notifications.map((notification) => (
+            <div className="space-y-4">
+              {notifications.map((n) => (
                 <div
-                  key={notification.id}
-                  className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-100 dark:border-gray-700  transition-all duration-200 group"
+                  key={n.id}
+                  className="flex items-start gap-3 p-3 border rounded-lg dark:border-gray-700"
                 >
-                  <div className="flex-shrink-0 p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-blue-100 dark:bg-blue-900/30  transition-colors duration-200">
-                    {getNotificationIcon(notification.type)}
+                  <div className="p-2 rounded-md bg-blue-100 dark:bg-blue-900/30">
+                    {getNotificationIcon(n.type)}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground leading-relaxed">
-                      {notification.message}
-                    </p>
-                    <div className="flex items-center space-x-3 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <Clock className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {notification.time}
-                        </span>
-                      </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{n.message}</p>
+                    <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      <Clock className="h-3 w-3 mr-1" /> {n.time}
                     </div>
                   </div>
                 </div>
@@ -347,80 +245,37 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <Card className="border border-gray-100 dark:border-gray-700/60 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm  transition-all duration-300">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold">
-              Quick Actions
-            </CardTitle>
-            <CardDescription className="text-base">
-              Common tasks and shortcuts
-            </CardDescription>
+        {/* Quick Actions Card */}
+        <Card className="border bg-white dark:bg-slate-800">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">Quick Actions</CardTitle>
+            <CardDescription>Common tasks and shortcuts</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-          <Button
-  className="w-full justify-start h-11 sm:h-12 text-sm sm:text-base font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
-  variant="outline"
-  onClick={() => {
-    navigate("/guests");
-    const event = new CustomEvent("showToast", {
-      detail: {
-        type: "info",
-        title: "Guest Management",
-        message: "Opening Guest Management with Add Guest form...",
-      },
-    });
-    window.dispatchEvent(event);
-  }}
->
-  <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-colors duration-200 mr-2 sm:mr-3">
-    <Users className="h-4 w-4 sm:h-5 sm:w-5" />
-  </div>
-  Add New Guest
-</Button>
-
-<Button
-  className="w-full justify-start h-11 sm:h-12 text-sm sm:text-base font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
-  variant="outline"
-  onClick={() => {
-    navigate("/rooms");
-    const event = new CustomEvent("showToast", {
-      detail: {
-        type: "info",
-        title: "Room Management",
-        message: "Redirecting to Room Management...",
-      },
-    });
-    window.dispatchEvent(event);
-  }}
->
-  <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-colors duration-200 mr-2 sm:mr-3">
-    <Bed className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 dark:text-gray-200" />
-  </div>
-  Assign Room
-</Button>
-
-<Button
-  className="w-full justify-start h-11 sm:h-12 text-sm sm:text-base font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
-  variant="outline"
-  onClick={() => {
-    navigate("/notifications");
-    const event = new CustomEvent("showToast", {
-      detail: {
-        type: "info",
-        title: "Notifications",
-        message: "Redirecting to Notifications...",
-      },
-    });
-    window.dispatchEvent(event);
-  }}
->
-  <div className="p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-colors duration-200 mr-2 sm:mr-3">
-    <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 dark:text-gray-200" />
-  </div>
-  Send Notification
-</Button>
-
+          <CardContent className="space-y-3">
+            <Button
+              className="w-full justify-start h-11 text-sm font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600"
+              variant="outline"
+              onClick={() => navigate("/guests")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Add New Guest
+            </Button>
+            <Button
+              className="w-full justify-start h-11 text-sm font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600"
+              variant="outline"
+              onClick={() => navigate("/rooms")}
+            >
+              <Bed className="h-4 w-4 mr-2" />
+              Add Room
+            </Button>
+            <Button
+              className="w-full justify-start h-11 text-sm font-medium bg-transparent hover:bg-gray-100 dark:hover:bg-gray-600"
+              variant="outline"
+              onClick={() => navigate("/notifications")}
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Send Notification
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -429,4 +284,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
