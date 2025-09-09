@@ -8,12 +8,7 @@ import {
 } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import {
-  Star,
-  Download,
-  MessageSquare,
-  User,
-} from "lucide-react";
+import { Star, Download, MessageSquare, User } from "lucide-react";
 import { formatDate } from "../lib/utils";
 
 // PDF export
@@ -79,9 +74,7 @@ const Feedback = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`h-4 w-4 ${
-          i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
-        }`}
+        className={`h-4 w-4 ${i < rating ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-gray-600"}`}
       />
     ));
   };
@@ -136,42 +129,50 @@ const Feedback = () => {
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
+    <div className="space-y-6 p-4 sm:p-6 dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800 min-h-screen">
       {/* Top Stats */}
       <div className="mx-auto w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+        <Card className="bg-gray-50 dark:bg-slate-800 border dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Average Rating
+            </CardTitle>
             <Star className="h-4 w-4 text-yellow-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{averageRating.toFixed(1)}</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {averageRating.toFixed(1)}
+            </div>
             <div className="flex items-center space-x-1 mt-1">
               {renderStars(Math.round(averageRating))}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-50 dark:bg-slate-800 border dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Reviews</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Total Reviews
+            </CardTitle>
             <MessageSquare className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalReviews}</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {totalReviews}
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters + Export */}
-      <Card className="mx-auto w-full max-w-7xl">
+      <Card className="mx-auto w-full max-w-7xl bg-gray-50 dark:bg-slate-800 border dark:border-gray-700">
         <CardContent className="p-4 flex flex-wrap gap-4 items-center">
           <div>
-            <label className="text-sm font-medium">Rating</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Rating</label>
             <select
               value={filterRating}
               onChange={(e) => setFilterRating(e.target.value)}
-              className="ml-2 px-3 py-1 border rounded-md"
+              className="ml-2 px-3 py-1 border dark:border-gray-600 rounded-md bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-200"
             >
               <option value="all">All Ratings</option>
               <option value="5">5 Stars</option>
@@ -183,28 +184,28 @@ const Feedback = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Room</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Room</label>
             <input
               type="text"
               placeholder="Enter room no."
               value={filterRoom}
               onChange={(e) => setFilterRoom(e.target.value)}
-              className="ml-2 px-3 py-1 border rounded-md"
+              className="ml-2 px-3 py-1 border dark:border-gray-600 rounded-md bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-200"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Date</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Date</label>
             <input
               type="date"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
-              className="ml-2 px-3 py-1 border rounded-md"
+              className="ml-2 px-3 py-1 border dark:border-gray-600 rounded-md bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-200"
             />
           </div>
 
           <Button
-            className="ml-auto flex items-center"
+            className="ml-auto flex items-center bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             onClick={handleExportPDF}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -214,37 +215,35 @@ const Feedback = () => {
       </Card>
 
       {/* Feedback List */}
-      <Card className="mx-auto w-full max-w-7xl">
+      <Card className="mx-auto w-full max-w-7xl bg-gray-50 dark:bg-slate-800 border dark:border-gray-700">
         <CardHeader>
-          <CardTitle>Recent Reviews</CardTitle>
-          <CardDescription>Filtered guest feedback</CardDescription>
+          <CardTitle className="text-gray-700 dark:text-gray-200">Recent Reviews</CardTitle>
+          <CardDescription className="text-gray-500 dark:text-gray-400">Filtered guest feedback</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {filteredFeedback.map((feedback) => (
               <div
                 key={feedback.id}
-                className="border rounded-lg p-4 hover:bg-muted/50"
+                className="border dark:border-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-slate-700"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{feedback.guestName}</span>
-                      <Badge variant="outline">
-                        Room {feedback.roomNumber}
-                      </Badge>
+                      <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{feedback.guestName}</span>
+                      <Badge variant="outline">Room {feedback.roomNumber}</Badge>
                       {getStatusBadge(feedback.status)}
                     </div>
 
                     <div className="flex items-center space-x-2 mb-2">
                       {renderStars(feedback.rating)}
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {formatDate(feedback.timestamp)}
                       </span>
                     </div>
 
-                    <p className="text-sm text-foreground mb-2">
+                    <p className="text-sm text-gray-900 dark:text-gray-100 mb-2">
                       {feedback.comment}
                     </p>
                   </div>

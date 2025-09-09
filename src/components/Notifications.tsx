@@ -157,11 +157,11 @@ const Notifications = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6 dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-gray-50 dark:bg-gray-800">
         {/* Send Notification Form */}
         <Card>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 bg-gray-50 dark:bg-gray-800">
             <div>
               <label className="text-sm font-medium">Message</label>
               <textarea
@@ -169,7 +169,7 @@ const Notifications = () => {
                 onChange={(e) => setNotificationForm({...notificationForm, message: e.target.value})}
                 placeholder="Enter notification message"
                 rows={4}
-                className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                className="w-full mt-1 px-3 py-2 border dark:border-gray-600 rounded-md bg-background dark:bg-gray-800 text-gray-900 dark:text-gray-200"
               />
             </div>
 
@@ -179,7 +179,7 @@ const Notifications = () => {
                 <select
                   value={notificationForm.priority}
                   onChange={(e) => setNotificationForm({...notificationForm, priority: e.target.value as any})}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border dark:border-gray-600 rounded-md bg-background dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -189,11 +189,11 @@ const Notifications = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Target</label>
+              <label className="text-sm font-medium dark:text-gray-200">Target</label>
               <select
                 value={notificationForm.target}
                 onChange={(e) => setNotificationForm({...notificationForm, target: e.target.value as any, targetId: ''})}
-                className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                className="w-full mt-1 px-3 py-2 border dark:border-gray-600 rounded-md bg-background dark:bg-gray-800 text-gray-900 dark:text-gray-200"
               >
                 <option value="all">All Guests</option>
                 <option value="room">Specific Room</option>
@@ -209,7 +209,7 @@ const Notifications = () => {
                 <select
                   value={notificationForm.targetId as string}
                   onChange={(e) => setNotificationForm({...notificationForm, targetId: e.target.value})}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border dark:border-gray-600 rounded-md bg-background"
                 >
                   <option value="">Select Room</option>
                   {rooms.map(room => (
@@ -227,7 +227,7 @@ const Notifications = () => {
                 <select
                   value={notificationForm.targetId as string}
                   onChange={(e) => setNotificationForm({...notificationForm, targetId: e.target.value})}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border dark:border-gray-600 rounded-md bg-background"
                 >
                   <option value="">Select Guest</option>
                   {rooms.map(room => (
@@ -245,7 +245,7 @@ const Notifications = () => {
                 <select
                   value={notificationForm.targetId as string}
                   onChange={(e) => setNotificationForm({...notificationForm, targetId: e.target.value})}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background"
+                  className="w-full mt-1 px-3 py-2 border dark:border-gray-600 rounded-md bg-background"
                 >
                   <option value="">Select Floor</option>
                   {floors.map(floor => (
@@ -267,7 +267,7 @@ const Notifications = () => {
                     const selected = Array.from(e.target.selectedOptions, option => option.value);
                     setNotificationForm({...notificationForm, targetId: selected});
                   }}
-                  className="w-full mt-1 px-3 py-2 border rounded-md bg-background h-32"
+                  className="w-full mt-1 px-3 py-2 border dark:border-gray-600 rounded-md bg-background h-32"
                 >
                   {rooms.map(room => (
                     <option key={room.id} value={room.number}>
@@ -281,22 +281,24 @@ const Notifications = () => {
               </div>
             )}
 
-            <div className="flex space-x-2">
-              <Button
-                onClick={handleSendNotification}
-                className="flex-1"
-                disabled={!notificationForm.message}
-              >
-                <Send className="mr-2 h-4 w-4" />
-                Send Notification
-              </Button>
-            </div>
+<div className="flex space-x-2 bg-gray-50  dark:bg-gray-800">
+  <Button
+    type="button"
+    onClick={handleSendNotification}
+    className="flex-1"
+    disabled={!notificationForm.message.trim()}
+  >
+    <Send className="mr-2 h-4 w-4 text-white" />
+    Send Notification
+  </Button>
+</div>
+
           </CardContent>
         </Card>
       </div>
 
       {/* Sent Notifications Timeline */}
-      <Card>
+      <Card className="bg-gray-50 dark:bg-gray-800">
         <CardHeader>
           <CardTitle>Sent Notifications</CardTitle>
           <CardDescription>History of all sent notifications</CardDescription>
@@ -304,7 +306,7 @@ const Notifications = () => {
         <CardContent>
           <div className="space-y-4">
             {notifications.map((notification) => (
-              <div key={notification.id} className="flex items-start space-x-4 p-4 border rounded-lg hover:bg-muted/50">
+              <div key={notification.id} className="flex items-start space-x-4 p-4 border dark:border-gray-700 rounded-lg hover:bg-muted/50">
                 <div className={`p-2 rounded-full ${getTypeColor(notification.type)} bg-opacity-10`}>
                   {getTypeIcon(notification.type)}
                 </div>
@@ -322,7 +324,7 @@ const Notifications = () => {
                     {notification.message}
                   </p>
 
-                  <p className="text-xs mt-1 text-gray-500">
+                  <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                     Target: {formatTarget(notification.target, notification.targetId)}
                   </p>
                   

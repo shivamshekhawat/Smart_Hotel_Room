@@ -47,17 +47,19 @@ const ConfigureDisplay = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="p-6 bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800 min-h-screen">
       <div className="mx-auto max-w-5xl space-y-6">
 
         {/* Logo Upload */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4 sm:p-6 bg-gray-50 dark:bg-slate-800 border dark:border-gray-700">
           <CardContent className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium mb-2 block">Logo Upload</label>
+              <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-200">Logo Upload</label>
               <div
                 className={`flex items-center justify-center border-2 border-dashed rounded-md h-24 cursor-pointer transition-colors ${
-                  dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-background"
+                  dragActive
+                    ? "border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30"
+                    : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-slate-700"
                 }`}
                 onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                 onDragLeave={() => setDragActive(false)}
@@ -68,7 +70,7 @@ const ConfigureDisplay = () => {
                 }}
                 onClick={() => document.getElementById("logo-input")?.click()}
               >
-                <p className="text-gray-500 text-center text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
                   Drag & drop an image here, or click to browse
                 </p>
               </div>
@@ -79,31 +81,31 @@ const ConfigureDisplay = () => {
                 className="hidden"
                 onChange={(e) => handleFiles(e.target.files)}
               />
-              {logo && <span className="mt-2 text-xs text-gray-500 block">{logo}</span>}
+              {logo && <span className="mt-2 text-xs text-gray-500 dark:text-gray-400 block">{logo}</span>}
             </div>
           </CardContent>
         </Card>
 
         {/* Room Info */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4 sm:p-6 bg-gray-50 dark:bg-slate-800 border dark:border-gray-700">
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col">
-              <label className="text-sm font-medium mb-1">Room Number</label>
+              <label className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Room Number</label>
               <input
                 type="text"
                 placeholder="e.g., 101"
-                className="border rounded-md px-3 py-2 bg-background focus:ring-1 focus:ring-blue-400 outline-none"
+                className="border dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-200 focus:ring-1 focus:ring-blue-400 outline-none"
                 value={roomNumber}
                 onChange={(e) => setRoomNumber(e.target.value)}
               />
             </div>
 
             <div className="flex flex-col">
-              <label className="text-sm font-medium mb-1">Welcome Message</label>
+              <label className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Welcome Message</label>
               <input
                 type="text"
                 placeholder="Welcome Mr. Doe to Hotel Aurora"
-                className="border rounded-md px-3 py-2 bg-background focus:ring-1 focus:ring-blue-400 outline-none"
+                className="border dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-200 focus:ring-1 focus:ring-blue-400 outline-none"
                 value={welcomeMessage}
                 onChange={(e) => setWelcomeMessage(e.target.value)}
               />
@@ -112,9 +114,9 @@ const ConfigureDisplay = () => {
         </Card>
 
         {/* Supported Languages */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4 sm:p-6 bg-gray-50 dark:bg-slate-800 border dark:border-gray-700">
           <CardContent className="flex flex-col gap-4">
-            <label className="text-sm font-medium">Supported Languages</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Supported Languages</label>
             <div className="flex flex-wrap gap-2">
               {supportedLanguages.map((lang) => (
                 <span
@@ -132,25 +134,25 @@ const ConfigureDisplay = () => {
             <input
               type="text"
               placeholder="Type language and press Enter / Space / Comma"
-              className="border rounded-md px-3 py-2 bg-background focus:ring-1 focus:ring-blue-400 outline-none"
+              className="border dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-200 focus:ring-1 focus:ring-blue-400 outline-none"
               value={languageInput}
               onChange={(e) => setLanguageInput(e.target.value)}
               onKeyDown={(e) => { if ([' ', ',', 'Enter'].includes(e.key)) { e.preventDefault(); handleAddLanguage(); } }}
             />
-            <Button
-              type="button"
-              variant="outline"
-              className="w-max flex items-center gap-1 mt-2"
-              onClick={() => setSupportedLanguages([])}
-            >
-              <X className="h-4 w-4" /> Clear All
-            </Button>
+           <Button
+  type="button"
+  className="w-max flex items-center gap-1 mt-2 bg-blue-600 text-white border border-blue-600 hover:bg-blue-600 dark:bg-blue-600 dark:border-blue-600 dark:hover:bg-blue-600"
+  onClick={() => setSupportedLanguages([])}
+>
+  <X className="h-4 w-4" /> Clear All
+</Button>
+
 
             {/* Default Language */}
             <div className="flex flex-col mt-4">
-              <label className="text-sm font-medium mb-1">Default Language</label>
+              <label className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">Default Language</label>
               <select
-                className="border rounded-md px-3 py-2 bg-background focus:ring-1 focus:ring-blue-400 outline-none"
+                className="border dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-200 focus:ring-1 focus:ring-blue-400 outline-none"
                 value={defaultLanguage}
                 onChange={(e) => setDefaultLanguage(e.target.value)}
               >

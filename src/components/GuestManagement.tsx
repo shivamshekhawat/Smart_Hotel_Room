@@ -121,18 +121,37 @@ const GuestManagement = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Status badge
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'checked-in':
-        return <Badge variant="success">Checked In</Badge>;
-      case 'checked-out':
-        return <Badge variant="secondary">Checked Out</Badge>;
-      case 'pending':
-        return <Badge variant="warning">Pending</Badge>;
-      default:
-        return <Badge variant="default">{status}</Badge>;
-    }
-  };
+  // Status badge - simple text (no background colors)
+// Status badge - simple text (Checked Out par border + rounded)
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case "checked-in":
+      return (
+        <span className="text-green-600 dark:text-green-400 border border-green-400 dark:border-green-600 rounded-md px-2 py-0.5 text-sm font-medium">
+          Checked In
+        </span>
+      );
+    case "checked-out":
+      return (
+        <span className="text-gray-700 dark:text-gray-300 border border-gray-400 dark:border-gray-600 rounded-md px-2 py-0.5 text-sm font-medium">
+          Checked Out
+        </span>
+      );
+    case "pending":
+      return (
+        <span className="text-yellow-600 border border-yellow-400 dark:border-yellow-600 rounded-md px-2 py-0.5 text-sm dark:text-yellow-400 font-medium">
+          Pending
+        </span>
+      );
+    default:
+      return (
+        <span className="text-gray-600 dark:text-gray-400  font-medium">
+          {status}
+        </span>
+      );
+  }
+};
+
 
   // Sorting
   const handleSort = (column: keyof Guest) => {
@@ -278,10 +297,10 @@ const GuestManagement = () => {
   );
 
   return (
-    <div className="space-y-6 p-4 bg-background min-h-screen">
+    <div className="space-y-6 p-4 min-h-screen bg-background dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
       <div className="flex justify-between items-center">
-        {/* <h1 className="text-2xl font-bold">Guest Management</h1> */}
+        
         <Button
           size="sm"
           variant="default"
@@ -295,9 +314,9 @@ const GuestManagement = () => {
 
       {/* Search */}
       <Card>
-        <CardContent className="p-4 flex items-center gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <CardContent className="p-4 flex items-center gap-4 bg-gray-50 dark:bg-gray-800">
+          <div className="relative flex-1 bg-gray-50 dark:bg-gray-800">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground dark:text-gray-400" />
             <input
               type="text"
               placeholder="Search guests"
@@ -306,7 +325,7 @@ const GuestManagement = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2 border rounded-md"
+              className="w-full pl-10 pr-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
             />
           </div>
           <span className="text-sm">{totalGuests} guests found</span>
@@ -315,13 +334,13 @@ const GuestManagement = () => {
 
       {/* Guest Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="bg-gray-50 dark:bg-gray-800">
           <CardTitle>Guest List</CardTitle>
           <CardDescription>
             All registered guests and their current status
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-gray-50 dark:bg-gray-800">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px]">
               <thead className="bg-gray-50 dark:bg-gray-800">
@@ -373,7 +392,7 @@ const GuestManagement = () => {
                           variant="outline"
                           onClick={() => alert(`Checking out ${guest.name}`)}
                         >
-                          <LogOut className="h-4 w-4 mr-1" />
+                          <LogOut className="h-4 w-4 mr-1 text-gray-900 dark:text-gray-200" />
                           Check-out
                         </Button>
                       )}
@@ -386,21 +405,22 @@ const GuestManagement = () => {
 
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Rows per page:</span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="border rounded p-1 text-sm"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-              </select>
-            </div>
+          <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-900 p-2 rounded">
+  <span className="text-sm text-gray-700 dark:text-gray-200">Rows per page:</span>
+  <select
+    value={itemsPerPage}
+    onChange={(e) => {
+      setItemsPerPage(Number(e.target.value));
+      setCurrentPage(1);
+    }}
+    className="border rounded p-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+  >
+    <option value={5}>5</option>
+    <option value={10}>10</option>
+    <option value={20}>20</option>
+  </select>
+</div>
+
             <div className="flex items-center gap-2">
               <Button
                 size="sm"
